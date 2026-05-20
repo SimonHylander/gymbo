@@ -8,59 +8,118 @@
 // You should NOT make any changes in this file as it will be overwritten.
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
-import { Route as rootRouteImport } from "./routes/__root"
-import { Route as IndexRouteImport } from "./routes/index"
+import { Route as rootRouteImport } from './routes/__root'
+import { Route as ChatRouteImport } from './routes/_chat'
+import { Route as ChatIndexRouteImport } from './routes/_chat/index'
+import { Route as RoutineIdRouteImport } from './routes/routine.$id'
+import { Route as ChatChatIdRouteImport } from './routes/_chat/chat.$id'
 
-const IndexRoute = IndexRouteImport.update({
-  id: "/",
-  path: "/",
+const ChatRoute = ChatRouteImport.update({
+  id: '/_chat',
   getParentRoute: () => rootRouteImport,
+} as any)
+const ChatIndexRoute = ChatIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => ChatRoute,
+} as any)
+const RoutineIdRoute = RoutineIdRouteImport.update({
+  id: '/routine/$id',
+  path: '/routine/$id',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ChatChatIdRoute = ChatChatIdRouteImport.update({
+  id: '/chat/$id',
+  path: '/chat/$id',
+  getParentRoute: () => ChatRoute,
 } as any)
 
 export interface FileRoutesByFullPath {
-  "/": typeof IndexRoute
+  '/': typeof ChatIndexRoute
+  '/routine/$id': typeof RoutineIdRoute
+  '/chat/$id': typeof ChatChatIdRoute
 }
 export interface FileRoutesByTo {
-  "/": typeof IndexRoute
+  '/routine/$id': typeof RoutineIdRoute
+  '/': typeof ChatIndexRoute
+  '/chat/$id': typeof ChatChatIdRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
-  "/": typeof IndexRoute
+  '/_chat': typeof ChatRouteWithChildren
+  '/routine/$id': typeof RoutineIdRoute
+  '/_chat/': typeof ChatIndexRoute
+  '/_chat/chat/$id': typeof ChatChatIdRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: "/"
+  fullPaths: '/' | '/routine/$id' | '/chat/$id'
   fileRoutesByTo: FileRoutesByTo
-  to: "/"
-  id: "__root__" | "/"
+  to: '/routine/$id' | '/' | '/chat/$id'
+  id: '__root__' | '/_chat' | '/routine/$id' | '/_chat/' | '/_chat/chat/$id'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
-  IndexRoute: typeof IndexRoute
+  ChatRoute: typeof ChatRouteWithChildren
+  RoutineIdRoute: typeof RoutineIdRoute
 }
 
-declare module "@tanstack/react-router" {
+declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
-    "/": {
-      id: "/"
-      path: "/"
-      fullPath: "/"
-      preLoaderRoute: typeof IndexRouteImport
+    '/_chat': {
+      id: '/_chat'
+      path: ''
+      fullPath: '/'
+      preLoaderRoute: typeof ChatRouteImport
       parentRoute: typeof rootRouteImport
+    }
+    '/_chat/': {
+      id: '/_chat/'
+      path: '/'
+      fullPath: '/'
+      preLoaderRoute: typeof ChatIndexRouteImport
+      parentRoute: typeof ChatRoute
+    }
+    '/routine/$id': {
+      id: '/routine/$id'
+      path: '/routine/$id'
+      fullPath: '/routine/$id'
+      preLoaderRoute: typeof RoutineIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/_chat/chat/$id': {
+      id: '/_chat/chat/$id'
+      path: '/chat/$id'
+      fullPath: '/chat/$id'
+      preLoaderRoute: typeof ChatChatIdRouteImport
+      parentRoute: typeof ChatRoute
     }
   }
 }
 
+interface ChatRouteChildren {
+  ChatIndexRoute: typeof ChatIndexRoute
+  ChatChatIdRoute: typeof ChatChatIdRoute
+}
+
+const ChatRouteChildren: ChatRouteChildren = {
+  ChatIndexRoute: ChatIndexRoute,
+  ChatChatIdRoute: ChatChatIdRoute,
+}
+
+const ChatRouteWithChildren = ChatRoute._addFileChildren(ChatRouteChildren)
+
 const rootRouteChildren: RootRouteChildren = {
-  IndexRoute: IndexRoute,
+  ChatRoute: ChatRouteWithChildren,
+  RoutineIdRoute: RoutineIdRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
 
-import type { getRouter } from "./router.tsx"
-import type { createStart } from "@tanstack/react-start"
-declare module "@tanstack/react-start" {
+import type { getRouter } from './router.tsx'
+import type { createStart } from '@tanstack/react-start'
+declare module '@tanstack/react-start' {
   interface Register {
     ssr: true
     router: Awaited<ReturnType<typeof getRouter>>

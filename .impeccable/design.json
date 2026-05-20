@@ -1,0 +1,237 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-05-20T00:00:00.000Z",
+  "title": "Design System: Gymbo",
+  "extensions": {
+    "colorMeta": {
+      "signal-teal": {
+        "role": "primary",
+        "displayName": "Signal Teal",
+        "canonical": "oklch(70.4% 0.14 182.503)",
+        "tonalRamp": [
+          "oklch(18% 0.04 182)",
+          "oklch(28% 0.06 182)",
+          "oklch(38% 0.08 182)",
+          "oklch(48% 0.10 182)",
+          "oklch(58% 0.12 182)",
+          "oklch(70.4% 0.14 182.503)",
+          "oklch(78% 0.12 182)",
+          "oklch(88% 0.08 182)"
+        ]
+      },
+      "celebration-magenta": {
+        "role": "secondary",
+        "displayName": "Celebration Magenta",
+        "canonical": "oklch(0.6175 0.1494 353.08)",
+        "tonalRamp": [
+          "oklch(18% 0.06 353)",
+          "oklch(28% 0.08 353)",
+          "oklch(38% 0.10 353)",
+          "oklch(48% 0.12 353)",
+          "oklch(55% 0.14 353)",
+          "oklch(0.6175 0.1494 353.08)",
+          "oklch(72% 0.12 353)",
+          "oklch(85% 0.08 353)"
+        ]
+      },
+      "floor-charcoal": {
+        "role": "neutral",
+        "displayName": "Floor Charcoal",
+        "canonical": "oklch(0.195 0 0)",
+        "tonalRamp": [
+          "oklch(8% 0.005 182)",
+          "oklch(12% 0.005 182)",
+          "oklch(16.5% 0.005 182)",
+          "oklch(19.5% 0.005 182)",
+          "oklch(22.5% 0.005 182)",
+          "oklch(27% 0.005 182)",
+          "oklch(40% 0.005 182)",
+          "oklch(94% 0.005 182)"
+        ]
+      },
+      "surface-raised": {
+        "role": "neutral",
+        "displayName": "Surface Raised",
+        "canonical": "oklch(0.225 0 0)",
+        "tonalRamp": [
+          "oklch(8% 0.005 182)",
+          "oklch(12% 0.005 182)",
+          "oklch(16.5% 0.005 182)",
+          "oklch(19.5% 0.005 182)",
+          "oklch(22.5% 0.005 182)",
+          "oklch(27% 0.005 182)",
+          "oklch(40% 0.005 182)",
+          "oklch(94% 0.005 182)"
+        ]
+      },
+      "ink-primary": {
+        "role": "neutral",
+        "displayName": "Ink Primary",
+        "canonical": "oklch(0.94 0 0)",
+        "tonalRamp": [
+          "oklch(12% 0 0)",
+          "oklch(25% 0 0)",
+          "oklch(38% 0 0)",
+          "oklch(50% 0 0)",
+          "oklch(60% 0 0)",
+          "oklch(75% 0 0)",
+          "oklch(88% 0 0)",
+          "oklch(94% 0 0)"
+        ]
+      }
+    },
+    "typographyMeta": {
+      "display": {
+        "displayName": "Display",
+        "purpose": "Session titles and single hero lines per region."
+      },
+      "title": {
+        "displayName": "Title",
+        "purpose": "Exercise names, card headers, sidebar sections."
+      },
+      "body": {
+        "displayName": "Body",
+        "purpose": "Coach copy, instructions, chat messages."
+      },
+      "label": {
+        "displayName": "Label",
+        "purpose": "Set numbers, units, metadata chips."
+      },
+      "mono": {
+        "displayName": "Mono",
+        "purpose": "Code artifacts and editor surfaces only."
+      }
+    },
+    "shadows": [
+      {
+        "name": "card",
+        "value": "inset 0 1px 0 oklch(1 0 0 / 0.04), 0 1px 2px oklch(0 0 0 / 0.2), 0 0.5px 1px oklch(0 0 0 / 0.15)",
+        "purpose": "Rare card lift in dark mode only."
+      },
+      {
+        "name": "float",
+        "value": "0 0 0 1px oklch(1 0 0 / 0.06), 0 16px 48px -6px oklch(0 0 0 / 0.35), 0 6px 12px -2px oklch(0 0 0 / 0.2)",
+        "purpose": "Dialogs, suggestions, artifact overlays."
+      },
+      {
+        "name": "composer",
+        "value": "0 1px 3px oklch(0 0 0 / 0.2), inset 0 1px 0 oklch(1 0 0 / 0.03)",
+        "purpose": "Chat input bar at rest."
+      }
+    ],
+    "motion": [
+      {
+        "name": "ease-spring",
+        "value": "cubic-bezier(0.22, 1, 0.36, 1)",
+        "purpose": "UI entrances; prefer over bounce curves."
+      },
+      {
+        "name": "ease-smooth",
+        "value": "cubic-bezier(0.4, 0, 0.2, 1)",
+        "purpose": "Standard state transitions."
+      },
+      {
+        "name": "panel-resize",
+        "value": "cubic-bezier(0.32, 0.72, 0, 1)",
+        "purpose": "Chat artifact panel width transitions."
+      }
+    ],
+    "breakpoints": [
+      { "name": "md", "value": "768px" }
+    ]
+  },
+  "components": [
+    {
+      "name": "Primary Button",
+      "kind": "button",
+      "refersTo": "button-primary",
+      "description": "Main action on dark surfaces: start set, confirm, navigate forward.",
+      "html": "<button class=\"ds-btn-primary\" type=\"button\">Log set</button>",
+      "css": ".ds-btn-primary { display: inline-flex; align-items: center; justify-content: center; height: 2.25rem; padding: 0 0.75rem; border: 1px solid transparent; border-radius: 0.625rem; background: oklch(70.4% 0.14 182.503); color: oklch(0.195 0 0); font-family: ui-sans-serif, system-ui, sans-serif; font-size: 0.875rem; font-weight: 500; cursor: pointer; transition: background 0.15s cubic-bezier(0.4, 0, 0.2, 1), transform 0.1s ease; } .ds-btn-primary:hover { background: oklch(70.4% 0.14 182.503 / 0.8); } .ds-btn-primary:active { transform: translateY(1px); } .ds-btn-primary:focus-visible { outline: 2px solid oklch(0.45 0 0); outline-offset: 2px; }"
+    },
+    {
+      "name": "Outline Button",
+      "kind": "button",
+      "refersTo": "button-outline",
+      "description": "Secondary actions: delete set, icon controls.",
+      "html": "<button class=\"ds-btn-outline\" type=\"button\" aria-label=\"Remove set\">−</button>",
+      "css": ".ds-btn-outline { display: inline-flex; align-items: center; justify-content: center; width: 1.75rem; height: 1.75rem; border: 1px solid oklch(0.27 0 0); border-radius: 0.625rem; background: oklch(0.165 0 0 / 0.3); color: oklch(0.94 0 0); font-size: 0.875rem; cursor: pointer; transition: background 0.15s ease, border-color 0.15s ease; } .ds-btn-outline:hover { background: oklch(0.165 0 0 / 0.5); border-color: oklch(0.4 0 0); } .ds-btn-outline:disabled { opacity: 0.5; pointer-events: none; }"
+    },
+    {
+      "name": "Set Input",
+      "kind": "input",
+      "refersTo": "input-field",
+      "description": "Weight and reps fields in the set logger; centered numerals.",
+      "html": "<input class=\"ds-input-set\" type=\"number\" inputmode=\"decimal\" placeholder=\"—\" />",
+      "css": ".ds-input-set { width: 100%; height: 2rem; padding: 0 0.5rem; border: 1px solid oklch(0.27 0 0); border-radius: 9999px; background: oklch(0.165 0 0 / 0.5); color: oklch(0.94 0 0); font-family: ui-sans-serif, system-ui, sans-serif; font-size: 0.875rem; text-align: center; outline: none; transition: border-color 0.15s ease, box-shadow 0.15s ease; } .ds-input-set::placeholder { color: oklch(0.6 0 0); } .ds-input-set:focus-visible { border-color: oklch(0.45 0 0); box-shadow: 0 0 0 3px oklch(0.45 0 0 / 0.5); }"
+    },
+    {
+      "name": "Exercise Card",
+      "kind": "card",
+      "refersTo": "surface-raised",
+      "description": "Active exercise panel with flat tonal surface and quiet border.",
+      "html": "<section class=\"ds-exercise-card\"><h2 class=\"ds-exercise-title\">Bench Press</h2><p class=\"ds-exercise-meta\">Set 2 of 4</p></section>",
+      "css": ".ds-exercise-card { background: oklch(0.225 0 0); border: 1px solid oklch(0.27 0 0 / 0.5); border-radius: 0.625rem; padding: 1rem; color: oklch(0.94 0 0); } .ds-exercise-title { margin: 0; font-size: 0.875rem; font-weight: 600; letter-spacing: -0.025em; line-height: 1.2; } .ds-exercise-meta { margin: 0.25rem 0 0; font-size: 0.75rem; color: oklch(0.6 0 0); }"
+    },
+    {
+      "name": "Rest Timer Badge",
+      "kind": "chip",
+      "refersTo": "signal-teal",
+      "description": "Compact timer chip during rest periods.",
+      "html": "<span class=\"ds-timer-badge\"><svg width=\"14\" height=\"14\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\"><circle cx=\"12\" cy=\"12\" r=\"10\"/><path d=\"M12 6v6l4 2\"/></svg>1:30</span>",
+      "css": ".ds-timer-badge { display: inline-flex; align-items: center; gap: 0.375rem; padding: 0.25rem 0.5rem; border-radius: 9999px; background: oklch(70.4% 0.14 182.503 / 0.15); color: oklch(70.4% 0.14 182.503); font-size: 0.75rem; font-weight: 500; }"
+    },
+    {
+      "name": "Sidebar Nav Item",
+      "kind": "nav",
+      "refersTo": "sidebar-slate",
+      "description": "Chat history or exercise list item in the sidebar rail.",
+      "html": "<a class=\"ds-nav-item ds-nav-item--active\" href=\"#\">Push Day A</a>",
+      "css": ".ds-nav-item { display: block; padding: 0.5rem 0.75rem; border-radius: 0.5rem; color: oklch(0.6 0 0); font-size: 0.875rem; text-decoration: none; transition: background 0.15s ease, color 0.15s ease; } .ds-nav-item:hover { background: oklch(0.94 0 0 / 0.06); color: oklch(0.94 0 0); } .ds-nav-item--active { background: oklch(0.94 0 0 / 0.06); color: oklch(0.94 0 0); font-weight: 500; }"
+    }
+  ],
+  "narrative": {
+    "northStar": "The Coach Desk",
+    "overview": "Gymbo looks like one disciplined workspace where a calm coach and a precise logbook sit side by side. Density follows Linear and Raycast: tight type, clear hierarchy, no decorative chrome. The lifter is on the gym floor between sets; the UI stays legible in dim light, responds one-handed, and never competes with the rep.",
+    "keyCharacteristics": [
+      "Dark-first gym-floor canvas with stepped neutral surfaces",
+      "Signal Teal accent used sparingly",
+      "System sans with negative tracking on headings",
+      "Flat-by-default elevation",
+      "Set row as the signature component",
+      "Chat and routine shells share sidebar vocabulary"
+    ],
+    "rules": [
+      {
+        "name": "The Signal Rule",
+        "body": "Signal Teal occupies ≤10% of any screen. Its rarity is the point.",
+        "section": "colors"
+      },
+      {
+        "name": "The Flat-By-Default Rule",
+        "body": "Exercise cards and set rows stay flat. Shadows appear only on float states.",
+        "section": "elevation"
+      },
+      {
+        "name": "The Gym Floor Rule",
+        "body": "Minimum 14px for anything the lifter must read between sets.",
+        "section": "typography"
+      }
+    ],
+    "dos": [
+      "Do treat Signal Teal as a scarce signal",
+      "Do keep chat and routine shells at equal visual weight",
+      "Do use tonal surface steps for depth in dark mode",
+      "Do size touch targets to at least 28–36px on set controls"
+    ],
+    "donts": [
+      "Don't build generic SaaS dashboards",
+      "Don't use spreadsheet or admin-table aesthetics",
+      "Don't adopt bro-gym styling",
+      "Don't use default AI chatbot chrome",
+      "Don't add colored left-stripe borders on cards",
+      "Don't use gradient text for emphasis",
+      "Don't nest cards inside cards"
+    ]
+  }
+}
