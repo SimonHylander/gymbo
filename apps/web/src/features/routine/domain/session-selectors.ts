@@ -1,3 +1,4 @@
+import { isExerciseComplete } from "@/features/routine/domain/exercise-log";
 import type { Exercise, Routine } from "@/features/routine/domain/types";
 import type { ExerciseLogState } from "@/features/routine/domain/types";
 
@@ -21,7 +22,7 @@ export function getCompletedIds(
 ): Set<string> {
   return new Set(
     routine.exercises
-      .filter((exercise) => exerciseLogs[exercise.id]?.completed)
+      .filter((exercise) => isExerciseComplete(exerciseLogs[exercise.id]))
       .map((exercise) => exercise.id)
   );
 }
@@ -38,8 +39,9 @@ export function getNextIncompleteId(
   exerciseLogs: Record<string, ExerciseLogState>
 ): string | null {
   return (
-    routine.exercises.find((exercise) => !exerciseLogs[exercise.id]?.completed)
-      ?.id ?? null
+    routine.exercises.find(
+      (exercise) => !isExerciseComplete(exerciseLogs[exercise.id])
+    )?.id ?? null
   );
 }
 

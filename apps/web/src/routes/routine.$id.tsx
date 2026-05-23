@@ -10,14 +10,18 @@ export const Route = createFileRoute("/routine/$id")({
 });
 
 function RoutinePage() {
-  const { routine, ongoingSession } = Route.useLoaderData();
+  const { routine, ongoingSession, nextRoutine } = Route.useLoaderData();
 
   return (
-    <Routine.Provider routine={routine} ongoingSession={ongoingSession}>
+    <Routine.Provider
+      key={routine.id}
+      routine={routine}
+      ongoingSession={ongoingSession}
+      nextRoutine={nextRoutine}
+    >
       <Routine.Shell>
         <Routine.ScrollContent>
           <Routine.Header />
-          <Routine.Welcome />
           <Routine.ExerciseStage />
           <Routine.NoteFeed />
           <Routine.Summary />

@@ -1,4 +1,5 @@
 import { useMutation } from "convex/react";
+import { useNavigate, useRouter } from "@tanstack/react-router";
 import {
   createContext,
   use,
@@ -30,6 +31,17 @@ import { toast } from "@/components/chat/toast";
 const RoutineStoreContext =
   createContext<StoreApi<RoutineSessionStore> | null>(null);
 
+type NextRoutine = {
+  externalId: string;
+  name: string;
+};
+
+const NextRoutineContext = createContext<NextRoutine | null>(null);
+
+const ProceedToNextWorkoutContext = createContext<
+  (() => Promise<void>) | null
+>(null);
+
 type RoutineMeta = {
   scrollRef: RefObject<HTMLDivElement | null>;
   inputRef: RefObject<HTMLTextAreaElement | null>;
@@ -41,18 +53,22 @@ const RoutineMetaContext = createContext<RoutineMeta | null>(null);
 type RoutineProviderProps = {
   routine: Routine;
   ongoingSession: WorkoutSessionSnapshot | null;
+  nextRoutine: NextRoutine | null;
   children: ReactNode;
 };
 
 export function RoutineProvider({
   routine,
   ongoingSession,
+  nextRoutine,
   children,
 }: RoutineProviderProps) {
   const storeRef = useRef<StoreApi<RoutineSessionStore> | null>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
   const syncRef = useRef<WorkoutMutations | null>(null) as WorkoutSyncRef;
+  const navigate = useNavigate();
+  const router = useRouter();
 
   const startMutation = useMutation(api.workouts.start);
   const completeMutation = useMutation(api.workouts.complete);
@@ -94,13 +110,35 @@ export function RoutineProvider({
     });
   }, []);
 
+  const proceedToNextWorkout = useCallback(async () => {
+    const store = storeRef.current;
+    if (!store) return;
+
+    const state = store.getState();
+    if (state.workoutStatus === "ongoing") {
+      await state.stopWorkout();
+    }
+
+    if (nextRoutine) {
+      await navigate({
+        to: "/routine/$id",
+        params: { id: nextRoutine.externalId },
+      });
+      await router.invalidate();
+    }
+  }, [navigate, nextRoutine, router]);
+
   return (
     <RoutineStoreContext value={storeRef.current}>
-      <RoutineMetaContext
-        value={{ scrollRef, inputRef, scrollToBottom }}
-      >
-        {children}
-      </RoutineMetaContext>
+      <NextRoutineContext value={nextRoutine}>
+        <ProceedToNextWorkoutContext value={proceedToNextWorkout}>
+          <RoutineMetaContext
+            value={{ scrollRef, inputRef, scrollToBottom }}
+          >
+            {children}
+          </RoutineMetaContext>
+        </ProceedToNextWorkoutContext>
+      </NextRoutineContext>
     </RoutineStoreContext>
   );
 }
@@ -151,4 +189,18 @@ export function useRoutineMeta() {
     throw new Error("useRoutineMeta must be used within Routine.Provider");
   }
   return meta;
+}
+
+export function useNextRoutine(): NextRoutine | null {
+  return use(NextRoutineContext);
+}
+
+export function useProceedToNextWorkout(): () => Promise<void> {
+  const proceed = use(ProceedToNextWorkoutContext);
+  if (!proceed) {
+    throw new Error(
+      "useProceedToNextWorkout must be used within Routine.Provider"
+    );
+  }
+  return proceed;
 }

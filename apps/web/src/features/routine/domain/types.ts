@@ -60,4 +60,5 @@ export type WorkoutSessionSnapshot = {
 export type RoutineLoaderData = {
   routine: Routine;
   ongoingSession: WorkoutSessionSnapshot | null;
+  nextRoutine: { externalId: string; name: string } | null;
 };

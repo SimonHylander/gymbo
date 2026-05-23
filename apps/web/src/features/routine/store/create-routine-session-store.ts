@@ -7,6 +7,8 @@ import {
   canCompleteSet,
   createInitialLogs,
   deleteSet,
+  isExerciseComplete,
+  markExerciseComplete,
   toggleExerciseComplete,
   toggleSetComplete,
   updateSetField,
@@ -341,14 +343,21 @@ export function createRoutineSessionStore(
       const log = state.exerciseLogs[exerciseId];
       const setEntry = log?.sets[setIdx];
       const wasCompleted = setEntry?.status === "completed";
+      const wasExerciseComplete = isExerciseComplete(log);
+
+      let updatedLog = toggleSetComplete(
+        state.exerciseLogs[exerciseId],
+        setIdx
+      );
+
+      if (isExerciseComplete(updatedLog) && !wasExerciseComplete) {
+        updatedLog = markExerciseComplete(updatedLog);
+      }
 
       set((current) => ({
         exerciseLogs: {
           ...current.exerciseLogs,
-          [exerciseId]: toggleSetComplete(
-            current.exerciseLogs[exerciseId],
-            setIdx
-          ),
+          [exerciseId]: updatedLog,
         },
       }));
 
@@ -378,6 +387,13 @@ export function createRoutineSessionStore(
       }
 
       persistLog(exerciseId, get, false);
+
+      if (isExerciseComplete(updatedLog) && !wasExerciseComplete) {
+        const nextId = getNextIncompleteId(get().routine, get().exerciseLogs);
+        if (nextId && nextId !== exerciseId) {
+          queueMicrotask(() => get().selectExercise(nextId));
+        }
+      }
     },
 
     skipRestTimer: () => set({ restTimer: null }),

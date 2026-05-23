@@ -4,6 +4,7 @@ import { notFound } from "@tanstack/react-router";
 
 import { api } from "../../../../convex/_generated/api";
 import type { RoutineLoaderData } from "@/features/routine/domain/types";
+import { MOCK_PROGRAM_ROUTINE_IDS } from "@/lib/db/data/mock-routine-seed";
 
 export async function loadRoutine(
   queryClient: QueryClient,
@@ -20,6 +21,20 @@ export async function loadRoutine(
 
   if (!routine) {
     throw notFound();
+  }
+
+  const currentIndex = MOCK_PROGRAM_ROUTINE_IDS.indexOf(externalId);
+  const nextExternalId =
+    currentIndex >= 0 ? MOCK_PROGRAM_ROUTINE_IDS[currentIndex + 1] : undefined;
+
+  let nextRoutine: RoutineLoaderData["nextRoutine"] = null;
+  if (nextExternalId) {
+    const next = await queryClient.ensureQueryData(
+      convexQuery(api.routines.getByExternalId, { externalId: nextExternalId }),
+    );
+    if (next) {
+      nextRoutine = { externalId: next.id, name: next.name };
+    }
   }
 
   return {
@@ -41,5 +56,6 @@ export async function loadRoutine(
           ),
         }
       : null,
+    nextRoutine,
   };
 }

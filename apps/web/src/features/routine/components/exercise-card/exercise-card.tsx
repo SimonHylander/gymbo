@@ -12,10 +12,13 @@ import {
   formatRestDurationLabel,
   getRestDuration,
 } from "@/features/routine/domain/rest-timer";
+import { isExerciseComplete } from "@/features/routine/domain/exercise-log";
 import {
   getActiveExercise,
+  getAllCompleted,
   getExerciseIndex,
 } from "@/features/routine/domain/session-selectors";
+import { WorkoutCompleteCta } from "@/features/routine/components/workout-complete-cta";
 import {
   useRoutineActions,
   useRoutineSession,
@@ -31,6 +34,7 @@ export const exerciseCardHeight = "min(380px, calc(100dvh - 18rem))";
 export function ExerciseCard() {
   const activeExerciseId = useRoutineSession((state) => state.activeExerciseId);
   const routine = useRoutineSession((state) => state.routine);
+  const exerciseLogs = useRoutineSession((state) => state.exerciseLogs);
   const log = useRoutineSession((state) => state.exerciseLogs[activeExerciseId]);
   const restTimer = useRoutineSession((state) => state.restTimer);
   const {
@@ -40,7 +44,6 @@ export function ExerciseCard() {
     applyPrevious,
     addSet,
     deleteSet,
-    toggleExerciseComplete,
     toggleSetComplete,
   } = useRoutineActions();
 
@@ -65,7 +68,8 @@ export function ExerciseCard() {
 
   if (!exercise || !log) return null;
 
-  const { completed } = log;
+  const completed = isExerciseComplete(log);
+  const allCompleted = getAllCompleted(routine, exerciseLogs);
   const canGoPrevious = exerciseIndex > 0;
   const canGoNext = exerciseIndex < totalExercises - 1;
   const restDurationLabel = formatRestDurationLabel(
@@ -212,25 +216,7 @@ export function ExerciseCard() {
         Add set
       </Button>
 
-      <Button
-        variant={completed ? "secondary" : "default"}
-        size="sm"
-        className={cn(
-          "w-full shrink-0 transition-colors",
-          completed &&
-            "border border-emerald-200 bg-emerald-50 text-emerald-700 hover:bg-emerald-100 dark:border-emerald-800/40 dark:bg-emerald-950/30 dark:text-emerald-400 dark:hover:bg-emerald-900/30"
-        )}
-        onClick={() => toggleExerciseComplete(activeExerciseId)}
-      >
-        {completed ? (
-          <>
-            <CheckIcon className="size-3.5" />
-            Completed
-          </>
-        ) : (
-          "Mark as done"
-        )}
-      </Button>
+      {allCompleted && <WorkoutCompleteCta variant="card" />}
     </div>
   );
 }

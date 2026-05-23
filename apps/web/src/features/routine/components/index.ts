@@ -3,7 +3,6 @@ import { RoutineShell, RoutineMain } from "@/features/routine/components/routine
 import { RoutineSidebar } from "@/features/routine/components/routine-sidebar";
 import { RoutineHeader } from "@/features/routine/components/routine-header";
 import { RoutineScrollContent } from "@/features/routine/components/routine-scroll-content";
-import { RoutineWelcome } from "@/features/routine/components/routine-welcome";
 import { RoutineExerciseStage } from "@/features/routine/components/routine-exercise-stage";
 import { RoutineNoteFeed } from "@/features/routine/components/routine-note-feed";
 import { RoutineNoteComposer } from "@/features/routine/components/routine-note-composer";
@@ -17,7 +16,6 @@ export const Routine = {
   Sidebar: RoutineSidebar,
   Header: RoutineHeader,
   ScrollContent: RoutineScrollContent,
-  Welcome: RoutineWelcome,
   ExerciseStage: RoutineExerciseStage,
   NoteFeed: RoutineNoteFeed,
   NoteComposer: RoutineNoteComposer,

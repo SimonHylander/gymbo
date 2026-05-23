@@ -105,6 +105,25 @@ function markSetsCompleted(sets: SetEntry[]): SetEntry[] {
   );
 }
 
+export function isExerciseComplete(
+  log: ExerciseLogState | undefined
+): boolean {
+  if (!log) return false;
+  if (log.completed) return true;
+  return (
+    log.sets.length > 0 &&
+    log.sets.every((set) => set.status === "completed")
+  );
+}
+
+export function markExerciseComplete(log: ExerciseLogState): ExerciseLogState {
+  return {
+    ...log,
+    completed: true,
+    sets: markSetsCompleted(log.sets),
+  };
+}
+
 export function toggleSetComplete(
   log: ExerciseLogState,
   setIdx: number

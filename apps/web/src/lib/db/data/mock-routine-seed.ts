@@ -2,6 +2,9 @@
 
 export const MOCK_ROUTINE_ID = "7c52fccb-9760-4767-8d35-664ac6a6f0ec"
 
+/** Ordered routine external IDs in a program split. Append IDs to enable multi-day navigation. */
+export const MOCK_PROGRAM_ROUTINE_IDS: string[] = [MOCK_ROUTINE_ID]
+
 export type MockExerciseSeed = {
   id: string
   name: string
