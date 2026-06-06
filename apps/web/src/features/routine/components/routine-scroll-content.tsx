@@ -1,11 +1,13 @@
 import type { ReactNode } from "react";
 import { useEffect } from "react";
 
+import { REST_TIMER_SCROLL_INSET_CLASS } from "@/features/routine/domain/rest-timer-presentation";
 import { getAllCompleted } from "@/features/routine/domain/session-selectors";
 import {
   useRoutineMeta,
   useRoutineSession,
 } from "@/features/routine/store/routine-session-context";
+import { useRestTimerPresentation } from "@/features/routine/store/use-rest-timer-presentation";
 import { cn } from "@/lib/utils";
 
 type RoutineScrollContentProps = {
@@ -14,7 +16,6 @@ type RoutineScrollContentProps = {
 
 function RoutineScrollSync() {
   const notes = useRoutineSession((state) => state.notes);
-  const activeExerciseId = useRoutineSession((state) => state.activeExerciseId);
   const routine = useRoutineSession((state) => state.routine);
   const exerciseLogs = useRoutineSession((state) => state.exerciseLogs);
   const { scrollToBottom } = useRoutineMeta();
@@ -23,22 +24,22 @@ function RoutineScrollSync() {
 
   useEffect(() => {
     scrollToBottom();
-  }, [notes, allCompleted, activeExerciseId, scrollToBottom]);
+  }, [notes, allCompleted, scrollToBottom]);
 
   return null;
 }
 
 export function RoutineScrollContent({ children }: RoutineScrollContentProps) {
   const { scrollRef } = useRoutineMeta();
-  const restTimerVisible = useRoutineSession((state) => state.restTimer !== null);
+  const { showScrollInset } = useRestTimerPresentation();
 
   return (
     <div ref={scrollRef} className="flex-1 overflow-y-auto">
       <RoutineScrollSync />
       <div
         className={cn(
-          "mx-auto flex min-h-full max-w-2xl flex-col gap-4 px-4 py-6",
-          restTimerVisible && "pb-32"
+          "mx-auto flex min-h-full max-w-2xl flex-col gap-4 px-4 py-6 pb-safe",
+          showScrollInset && REST_TIMER_SCROLL_INSET_CLASS
         )}
       >
         {children}

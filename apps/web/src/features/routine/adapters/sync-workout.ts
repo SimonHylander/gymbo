@@ -1,4 +1,5 @@
 import type { Id } from "../../../../convex/_generated/dataModel";
+import type { JointPainLevel } from "@/features/routine/domain/joint-pain";
 import type {
   ExerciseLogState,
   WorkoutSessionSnapshot,
@@ -26,6 +27,12 @@ export type WorkoutMutations = {
     workoutExerciseId: Id<"workoutExercises">;
     setIndex: number;
   }) => Promise<ExerciseLogState>;
+  recordJointPain: (args: {
+    workoutId: Id<"workouts">;
+    workoutExerciseId: Id<"workoutExercises">;
+    jointPainLevel: JointPainLevel;
+    userId?: string;
+  }) => Promise<Id<"exerciseBiofeedback">>;
 };
 
 export function toWorkoutSessionSnapshot(
@@ -77,6 +84,12 @@ export function createWorkoutSync(
       workoutExerciseId: Id<"workoutExercises">;
       setIndex: number;
     }) => Promise<unknown>;
+    recordJointPainMutation: (args: {
+      workoutId: Id<"workouts">;
+      workoutExerciseId: Id<"workoutExercises">;
+      jointPainLevel: JointPainLevel;
+      userId?: string;
+    }) => Promise<unknown>;
   },
 ): WorkoutMutations {
   return {
@@ -106,5 +119,7 @@ export function createWorkoutSync(
       (await mutations.removeSetMutation(args)) as ExerciseLogState,
     applyPreviousToSet: async (args) =>
       (await mutations.applyPreviousToSetMutation(args)) as ExerciseLogState,
+    recordJointPain: async (args) =>
+      (await mutations.recordJointPainMutation(args)) as Id<"exerciseBiofeedback">,
   };
 }

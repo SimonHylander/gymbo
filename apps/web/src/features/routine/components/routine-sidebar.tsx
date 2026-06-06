@@ -17,6 +17,7 @@ import {
   SidebarRail,
 } from "@/components/ui/sidebar";
 import { cn } from "@/lib/utils";
+import { formatRepTargetLabel } from "@/lib/rep-target";
 
 export function RoutineSidebar() {
   const routine = useRoutineSession((state) => state.routine);
@@ -33,8 +34,8 @@ export function RoutineSidebar() {
         <p className="px-2 text-[13px] font-semibold text-sidebar-foreground">
           {routine.name}
         </p>
-        <p className="px-2 text-xs text-sidebar-foreground/50">
-          {completedCount} / {routine.exercises.length} done
+        <p className="px-2 text-xs text-sidebar-foreground/70">
+          {completedCount} of {routine.exercises.length} exercises done
         </p>
       </SidebarHeader>
 
@@ -45,6 +46,11 @@ export function RoutineSidebar() {
             {routine.exercises.map((exercise, idx) => {
               const isDone = completedIds.has(exercise.id);
               const isActive = exercise.id === activeExerciseId;
+              const repLabel = formatRepTargetLabel({
+                reps: exercise.reps,
+                repRangeMin: exercise.repRangeMin,
+                repRangeMax: exercise.repRangeMax,
+              });
 
               return (
                 <SidebarMenuItem key={exercise.id}>
@@ -52,21 +58,23 @@ export function RoutineSidebar() {
                     isActive={isActive}
                     onClick={() => selectExercise(exercise.id)}
                     size="lg"
+                    aria-current={isActive ? "true" : undefined}
                     className={cn(
-                      "h-auto flex-col items-start gap-0 rounded-lg py-2 transition-[background-color,opacity,transform] duration-300 ease-out",
-                      isActive && "translate-x-0.5",
-                      isDone && "opacity-60"
+                      "min-h-11 h-auto flex-col items-start gap-0 rounded-lg py-2.5 transition-[background-color,opacity] duration-200",
+                      isActive &&
+                        "bg-sidebar-accent font-semibold text-sidebar-accent-foreground",
+                      isDone && !isActive && "opacity-60"
                     )}
                     tooltip={exercise.name}
                   >
                     <div className="flex w-full items-center gap-2">
                       <span
                         className={cn(
-                          "flex size-5 shrink-0 items-center justify-center rounded-full text-[10px] font-semibold transition-all duration-300 ease-out",
+                          "flex size-6 shrink-0 items-center justify-center rounded-full text-[10px] font-semibold transition-all duration-200",
                           isDone
                             ? "bg-emerald-500 text-white"
                             : isActive
-                              ? "bg-sidebar-primary text-sidebar-primary-foreground scale-105"
+                              ? "bg-sidebar-primary text-sidebar-primary-foreground"
                               : "bg-sidebar-accent text-sidebar-accent-foreground"
                         )}
                       >
@@ -80,12 +88,12 @@ export function RoutineSidebar() {
                         {exercise.name}
                       </span>
                     </div>
-                    {(exercise.sets.length > 0 || exercise.reps) && (
-                      <span className="ml-7 text-[11px] text-sidebar-foreground/50 group-data-[collapsible=icon]:hidden">
+                    {(exercise.sets.length > 0 || repLabel) && (
+                      <span className="ml-8 text-[11px] text-sidebar-foreground/60 group-data-[collapsible=icon]:hidden">
                         {[
                           exercise.sets.length > 0 &&
                             `${exercise.sets.length} sets`,
-                          exercise.reps && `${exercise.reps} reps`,
+                          repLabel && `${repLabel} reps`,
                         ]
                           .filter(Boolean)
                           .join(" · ")}

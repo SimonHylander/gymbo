@@ -1,16 +1,18 @@
-import { ArrowLeftIcon, PlayIcon, SquareIcon } from "lucide-react";
-import { useNavigate } from "@tanstack/react-router";
+import { ArrowLeftIcon, PlayIcon } from "lucide-react";
 import { useEffect, useState } from "react";
 
+import { LeaveWorkoutDialog } from "@/features/routine/components/leave-workout-dialog";
 import {
   formatWorkoutElapsedMinutes,
   getWorkoutElapsedMs,
 } from "@/features/routine/domain/workout-timer";
 import { getWorkoutStats } from "@/features/routine/domain/session-selectors";
 import {
-  useRoutineActions,
   useRoutineSession,
+  useWorkoutLifecycle,
+  useWorkoutSessionMeta,
 } from "@/features/routine/store/routine-session-context";
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
@@ -22,32 +24,40 @@ function formatVolume(kg: number): string {
   return `${Math.round(kg).toLocaleString()} kg`;
 }
 
-function OverviewStat({
-  label,
-  value,
-  className,
-}: {
-  label: string;
-  value: string;
-  className?: string;
-}) {
+function SyncStatusChip() {
+  const { syncState, workoutStatus } = useWorkoutSessionMeta();
+
+  if (workoutStatus !== "ongoing") return null;
+
+  const label =
+    syncState === "saving"
+      ? "Saving…"
+      : syncState === "saved"
+        ? "Saved"
+        : syncState === "error"
+          ? "Save failed"
+          : null;
+
+  if (!label) return null;
+
   return (
-    <div className={cn("flex flex-col items-center gap-0.5 text-center", className)}>
-      <span className="font-semibold text-sm tabular-nums tracking-tight">
-        {value}
-      </span>
-      <span className="text-[11px] text-muted-foreground">{label}</span>
-    </div>
+    <Badge
+      variant="outline"
+      className={cn(
+        "text-xs font-normal",
+        syncState === "saved" && "border-emerald-500/30 text-emerald-600 dark:text-emerald-400",
+        syncState === "error" && "border-destructive/40 text-destructive"
+      )}
+      aria-live="polite"
+    >
+      {label}
+    </Badge>
   );
 }
 
-function TimeOverviewStat() {
-  const workoutStartedAt = useRoutineSession((state) => state.workoutStartedAt);
-  const workoutEndedAt = useRoutineSession((state) => state.workoutEndedAt);
-  const workoutStatus = useRoutineSession((state) => state.workoutStatus);
-  const isStartingWorkout = useRoutineSession((state) => state.isStartingWorkout);
-  const isStoppingWorkout = useRoutineSession((state) => state.isStoppingWorkout);
-  const { startWorkout, stopWorkout } = useRoutineActions();
+function WorkoutElapsedTime() {
+  const { workoutStartedAt, workoutEndedAt, workoutStatus } =
+    useWorkoutSessionMeta();
   const [now, setNow] = useState(() => Date.now());
 
   const isRunning =
@@ -73,85 +83,155 @@ function TimeOverviewStat() {
           getWorkoutElapsedMs(workoutStartedAt, endTimestamp)
         );
 
-  if (workoutStatus === "completed") {
-    return (
-      <OverviewStat
-        label="Time"
-        value={workoutStartedAt === null ? "0:00.0" : elapsedTime}
-      />
-    );
-  }
-
-  if (workoutStartedAt === null) {
-    return (
-      <div className="flex flex-col items-center gap-0.5 text-center">
-        <Button
-          variant="default"
-          size="sm"
-          onClick={() => void startWorkout()}
-          disabled={isStartingWorkout}
-          className="h-7 gap-1 px-2.5 text-xs"
-        >
-          <PlayIcon className="size-3" />
-          {isStartingWorkout ? "Starting…" : "Start"}
-        </Button>
-        <span className="text-[11px] text-muted-foreground">Time</span>
-      </div>
-    );
-  }
-
   return (
-    <div
-      className="flex flex-col items-center gap-0.5 text-center"
+    <span
+      className="font-semibold text-sm tabular-nums tracking-tight"
       aria-live="polite"
       aria-label={`Workout elapsed time ${elapsedTime}`}
     >
-      <div className="flex items-center gap-1">
-        <span className="font-semibold text-sm tabular-nums tracking-tight">
-          {elapsedTime}
-        </span>
-        <Button
-          variant="ghost"
-          size="icon-xs"
-          onClick={() => void stopWorkout()}
-          disabled={isStoppingWorkout}
-          className="size-6 text-muted-foreground hover:text-destructive"
-          aria-label="End workout"
-        >
-          <SquareIcon className="size-3 fill-current" />
-        </Button>
-      </div>
-      <span className="text-[11px] text-muted-foreground">Time</span>
-    </div>
+      {elapsedTime}
+    </span>
   );
 }
 
 export function RoutineHeader() {
-  const navigate = useNavigate();
   const name = useRoutineSession((state) => state.routine.name);
   const exerciseLogs = useRoutineSession((state) => state.exerciseLogs);
+  const {
+    workoutStatus,
+    workoutStartedAt,
+    isStartingWorkout,
+    isStoppingWorkout,
+    startWorkout,
+  } = useWorkoutSessionMeta();
+  const { requestFinish, shouldConfirmLeave, leaveWorkout } = useWorkoutLifecycle();
+
+  const [leaveDialogOpen, setLeaveDialogOpen] = useState(false);
 
   const { completedSets, totalVolumeKg } = getWorkoutStats(exerciseLogs);
 
-  return (
-    <section className="flex flex-col gap-3 rounded-xl border border-border/50 bg-card p-4 shadow-sm">
-      <div className="flex min-w-0 items-center gap-2">
-        <Button
-          variant="ghost"
-          size="icon-sm"
-          onClick={() => navigate({ to: "/" })}
-          aria-label="Go back"
-        >
-          <ArrowLeftIcon className="size-4" />
-        </Button>
-        <h2 className="min-w-0 truncate font-semibold text-sm">{name}</h2>
-      </div>
+  const statusLabel =
+    workoutStatus === "completed"
+      ? "Workout complete"
+      : workoutStatus === "ongoing"
+        ? "Workout in progress"
+        : "Not started";
 
-      <div className="grid grid-cols-3 gap-2 border-t border-border/40 pt-3">
-        <TimeOverviewStat />
-        <OverviewStat label="Volume" value={formatVolume(totalVolumeKg)} />
-        <OverviewStat label="Sets" value={String(completedSets)} />
-      </div>
-    </section>
+  const handleBack = () => {
+    if (shouldConfirmLeave()) {
+      setLeaveDialogOpen(true);
+      return;
+    }
+
+    void leaveWorkout();
+  };
+
+  const handleConfirmLeave = () => {
+    setLeaveDialogOpen(false);
+    void leaveWorkout();
+  };
+
+  const isCompact = workoutStatus === "ongoing";
+
+  return (
+    <>
+      <section
+        className={cn(
+          "flex flex-col gap-3 rounded-xl border border-border/50 bg-card shadow-sm",
+          isCompact ? "p-3" : "p-4"
+        )}
+      >
+        <div className="flex min-w-0 items-start justify-between gap-3">
+          <div className="flex min-w-0 flex-1 items-start gap-2">
+            <Button
+              variant="ghost"
+              size="icon-sm"
+              onClick={handleBack}
+              aria-label="Go back"
+              className="shrink-0"
+            >
+              <ArrowLeftIcon className="size-4" />
+            </Button>
+            <div className="min-w-0 flex-1">
+              <h2 className="truncate font-semibold text-sm">{name}</h2>
+              <div className="mt-0.5 flex flex-wrap items-center gap-2">
+                <p className="text-xs text-foreground/70">{statusLabel}</p>
+                {workoutStatus === "ongoing" && workoutStartedAt !== null && (
+                  <WorkoutElapsedTime />
+                )}
+                <SyncStatusChip />
+              </div>
+            </div>
+          </div>
+
+          <div className="flex shrink-0 flex-col items-end gap-1">
+            {workoutStatus === "pending" && (
+              <Button
+                variant="default"
+                size="sm"
+                onClick={() => void startWorkout()}
+                disabled={isStartingWorkout}
+                className="h-9 gap-1.5 px-3"
+              >
+                <PlayIcon className="size-3.5" />
+                {isStartingWorkout ? "Starting…" : "Start workout"}
+              </Button>
+            )}
+            {workoutStatus === "ongoing" && (
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => void requestFinish()}
+                disabled={isStoppingWorkout}
+                className="h-9 px-3 hover:border-destructive/50 hover:text-destructive"
+              >
+                {isStoppingWorkout ? "Finishing…" : "Finish workout"}
+              </Button>
+            )}
+            {workoutStatus === "completed" && (
+              <Badge
+                variant="secondary"
+                className="border-emerald-500/30 bg-emerald-500/10 text-emerald-700 dark:text-emerald-400"
+              >
+                Done
+              </Badge>
+            )}
+          </div>
+        </div>
+
+        <div
+          className={cn(
+            "flex items-center justify-between gap-4 border-t border-border/40 pt-3 text-xs text-foreground/70",
+            isCompact && "pt-2"
+          )}
+        >
+          <span>
+            <span className="font-semibold tabular-nums text-foreground">
+              {formatVolume(totalVolumeKg)}
+            </span>{" "}
+            volume
+          </span>
+          <span>
+            <span className="font-semibold tabular-nums text-foreground">
+              {completedSets}
+            </span>{" "}
+            sets done
+          </span>
+          {workoutStatus === "completed" && workoutStartedAt !== null && (
+            <span className="hidden sm:inline">
+              Time{" "}
+              <WorkoutElapsedTime />
+            </span>
+          )}
+        </div>
+      </section>
+
+      <LeaveWorkoutDialog
+        open={leaveDialogOpen}
+        onOpenChange={setLeaveDialogOpen}
+        onConfirmLeave={handleConfirmLeave}
+        isSaving={workoutStatus === "ongoing"}
+      />
+    </>
   );
 }

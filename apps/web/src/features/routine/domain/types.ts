@@ -24,7 +24,9 @@ export type Exercise = {
   id: string;
   name: string;
   sets: SetEntry[];
-  reps?: string;
+  reps?: number;
+  repRangeMin?: number;
+  repRangeMax?: number;
   restSeconds?: number;
   notes?: string;
   history: HistoryEntry[];

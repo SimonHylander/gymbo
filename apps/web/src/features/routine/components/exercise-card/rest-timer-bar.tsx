@@ -6,8 +6,7 @@ import {
   getRestProgress,
 } from "@/features/routine/domain/rest-timer";
 import {
-  useRoutineActions,
-  useRoutineSession,
+  useRestTimerControls,
 } from "@/features/routine/store/routine-session-context";
 import { Button } from "@/components/ui/button";
 
@@ -22,8 +21,8 @@ const restTimerVariants = {
 };
 
 export function RestTimerBar() {
-  const restTimer = useRoutineSession((state) => state.restTimer);
-  const { skipRestTimer, adjustRestTimer } = useRoutineActions();
+  const { restTimer, workoutStatus, skipRestTimer, adjustRestTimer } =
+    useRestTimerControls();
   const shouldReduceMotion = useReducedMotion();
   const [now, setNow] = useState(() => Date.now());
   const dismissTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -76,10 +75,11 @@ export function RestTimerBar() {
   const totalMs = restTimer ? restTimer.totalSeconds * 1000 : 0;
   const progress = getRestProgress(remainingMs, totalMs);
   const countdown = formatRestCountdown(remainingMs);
+  const showRestTimer = restTimer !== null && workoutStatus !== "completed";
 
   return (
     <AnimatePresence initial={false}>
-      {restTimer && (
+      {showRestTimer && restTimer && (
         <motion.div
           key="rest-timer"
           role="region"

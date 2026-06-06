@@ -1,17 +1,7 @@
 import { useReducedMotion } from "framer-motion";
-import {
-  CheckIcon,
-  ChevronLeftIcon,
-  ChevronRightIcon,
-  PlusIcon,
-  TimerIcon,
-} from "lucide-react";
+import { CheckIcon, PlusIcon, TimerIcon } from "lucide-react";
 import { useEffect, useRef } from "react";
 
-import {
-  formatRestDurationLabel,
-  getRestDuration,
-} from "@/features/routine/domain/rest-timer";
 import { isExerciseComplete } from "@/features/routine/domain/exercise-log";
 import {
   getActiveExercise,
@@ -19,36 +9,49 @@ import {
   getExerciseIndex,
 } from "@/features/routine/domain/session-selectors";
 import { WorkoutCompleteCta } from "@/features/routine/components/workout-complete-cta";
-import {
-  useRoutineActions,
-  useRoutineSession,
-} from "@/features/routine/store/routine-session-context";
+import { useExerciseLogging } from "@/features/routine/store/routine-session-context";
+import { useRestTimerPresentation } from "@/features/routine/store/use-rest-timer-presentation";
 import { SetLoggerRow } from "@/features/routine/components/exercise-card/set-logger-row";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { cn } from "@/lib/utils";
+import { formatRepTargetLabel } from "@/lib/rep-target";
 
-export const exerciseCardHeight = "min(380px, calc(100dvh - 18rem))";
+export const exerciseCardHeight = "min(420px, calc(100dvh - 16rem))";
 
-export function ExerciseCard() {
-  const activeExerciseId = useRoutineSession((state) => state.activeExerciseId);
-  const routine = useRoutineSession((state) => state.routine);
-  const exerciseLogs = useRoutineSession((state) => state.exerciseLogs);
-  const log = useRoutineSession((state) => state.exerciseLogs[activeExerciseId]);
-  const restTimer = useRoutineSession((state) => state.restTimer);
+type ExerciseCardProps = {
+  exerciseId?: string;
+  layout?: "stage" | "list";
+};
+
+export function ExerciseCard({
+  exerciseId: exerciseIdProp,
+  layout = "stage",
+}: ExerciseCardProps = {}) {
   const {
-    goToPreviousExercise,
-    goToNextExercise,
+    activeExerciseId: storeActiveExerciseId,
+    routine,
+    exerciseLogs,
     updateSet,
     applyPrevious,
     addSet,
     deleteSet,
     toggleSetComplete,
-  } = useRoutineActions();
+  } = useExerciseLogging();
 
-  const exercise = getActiveExercise(routine, activeExerciseId);
-  const exerciseIndex = getExerciseIndex(routine, activeExerciseId);
+  const exerciseId = exerciseIdProp ?? storeActiveExerciseId;
+  const isListLayout = layout === "list";
+  const isActiveExercise = exerciseId === storeActiveExerciseId;
+
+  const log = exerciseLogs[exerciseId];
+  const { durationLabel, activeBadgeClassName } = useRestTimerPresentation({
+    exerciseId,
+    highlight: "exercise",
+  });
+
+  const exercise = getActiveExercise(routine, exerciseId);
+  const exerciseIndex = getExerciseIndex(routine, exerciseId);
   const totalExercises = routine.exercises.length;
   const setsEndRef = useRef<HTMLDivElement>(null);
   const prevSetCountRef = useRef(log?.sets.length ?? 0);
@@ -70,153 +73,163 @@ export function ExerciseCard() {
 
   const completed = isExerciseComplete(log);
   const allCompleted = getAllCompleted(routine, exerciseLogs);
-  const canGoPrevious = exerciseIndex > 0;
-  const canGoNext = exerciseIndex < totalExercises - 1;
-  const restDurationLabel = formatRestDurationLabel(
-    getRestDuration(exercise.restSeconds)
-  );
-  const isRestTimerActiveForExercise =
-    restTimer?.exerciseId === activeExerciseId;
+  const activeSetIndex = log.sets.findIndex((set) => set.status !== "completed");
+  const repLabel = formatRepTargetLabel({
+    reps: exercise.reps,
+    repRangeMin: exercise.repRangeMin,
+    repRangeMax: exercise.repRangeMax,
+  });
+  const targetLabel =
+    exercise.sets.length > 0 && repLabel
+      ? `${exercise.sets.length} × ${repLabel}`
+      : repLabel
+        ? repLabel
+        : exercise.sets.length > 0
+          ? `${exercise.sets.length} sets`
+          : null;
+
+  const showWorkoutCompleteCta =
+    allCompleted &&
+    (isListLayout ? exerciseIndex === totalExercises - 1 : true);
 
   return (
     <div
-      style={{ height: exerciseCardHeight }}
+      style={isListLayout ? undefined : { height: exerciseCardHeight }}
       className={cn(
-        "flex flex-col gap-3 rounded-xl border bg-card p-4 shadow-sm transition-colors duration-200",
+        "flex flex-col gap-3 rounded-xl border bg-card p-4 shadow-sm transition-[border-color,box-shadow] duration-200",
         completed
           ? "border-emerald-200 dark:border-emerald-800/50"
-          : "border-border/50"
+          : "border-border/50",
+        isListLayout &&
+          isActiveExercise &&
+          !completed &&
+          "border-primary/35 ring-2 ring-primary/20"
       )}
     >
       <div className="flex shrink-0 items-start justify-between gap-3">
         <div className="flex min-w-0 flex-col gap-1.5">
-          <p
-            className={cn(
-              "font-semibold text-sm leading-snug",
-              completed && "text-emerald-700 dark:text-emerald-400"
+          <div className="flex flex-wrap items-center gap-2">
+            <p
+              className={cn(
+                "font-semibold text-sm leading-snug",
+                completed && "text-emerald-700 dark:text-emerald-400"
+              )}
+            >
+              {exercise.name}
+            </p>
+            {completed && (
+              <div className="flex size-5 shrink-0 items-center justify-center rounded-full bg-emerald-500 text-white">
+                <CheckIcon className="size-3 stroke-[2.5]" />
+              </div>
             )}
-          >
-            {exercise.name}
-          </p>
+          </div>
           <div className="flex flex-wrap items-center gap-1.5">
-            {exercise.sets.length > 0 && exercise.reps && (
+            {targetLabel && (
               <Badge variant="secondary" className="text-xs">
-                {exercise.sets.length} × {exercise.reps}
+                Target · {targetLabel}
               </Badge>
             )}
             <Badge
               variant="outline"
               className={cn(
                 "gap-1 text-xs",
-                isRestTimerActiveForExercise &&
-                  "border-primary/30 bg-primary/5 text-foreground"
+                activeBadgeClassName && "text-foreground",
+                activeBadgeClassName
               )}
             >
               <TimerIcon className="size-3" />
-              {restDurationLabel} rest
+              {durationLabel} rest
             </Badge>
           </div>
         </div>
 
-        <div className="flex shrink-0 items-center gap-0.5">
-          <Button
-            type="button"
-            variant="ghost"
-            size="icon-xs"
-            className="text-muted-foreground hover:text-foreground"
-            onClick={goToPreviousExercise}
-            disabled={!canGoPrevious}
-            aria-label="Previous exercise"
-          >
-            <ChevronLeftIcon />
-          </Button>
-
-          <span className="min-w-[2.25rem] text-center text-[10px] font-medium tabular-nums tracking-wide text-muted-foreground">
-            {exerciseIndex + 1}
-            <span className="mx-0.5 text-muted-foreground/40">/</span>
-            {totalExercises}
-          </span>
-
-          <Button
-            type="button"
-            variant="ghost"
-            size="icon-xs"
-            className="text-muted-foreground hover:text-foreground"
-            onClick={goToNextExercise}
-            disabled={!canGoNext}
-            aria-label="Next exercise"
-          >
-            <ChevronRightIcon />
-          </Button>
-
-          {completed && (
-            <div className="ml-1 flex size-5 shrink-0 items-center justify-center rounded-full bg-emerald-500 text-white">
-              <CheckIcon className="size-3 stroke-[2.5]" />
-            </div>
-          )}
-        </div>
+        <span className="shrink-0 text-xs font-medium tabular-nums text-foreground/70">
+          {exerciseIndex + 1} of {totalExercises}
+        </span>
       </div>
 
       {exercise.notes && (
-        <p className="line-clamp-2 shrink-0 rounded-lg bg-muted/60 px-3 py-2 text-xs text-muted-foreground italic leading-relaxed">
+        <p className="line-clamp-2 shrink-0 rounded-lg bg-muted/60 px-3 py-2 text-xs text-foreground/70 italic leading-relaxed">
           {exercise.notes}
         </p>
       )}
 
       <div className="flex min-h-0 flex-1 flex-col gap-2">
-        <div className="grid shrink-0 grid-cols-[1.75rem_1.75rem_1fr_1fr_1fr_1.75rem] items-center gap-2 px-0.5">
-          <span className="text-[10px] font-medium uppercase tracking-wide text-muted-foreground" />
-          <span className="text-[10px] font-medium uppercase tracking-wide text-muted-foreground" />
-          <span className="text-[10px] font-medium uppercase tracking-wide text-muted-foreground">
-            Previous
-          </span>
-          <span className="text-[10px] font-medium uppercase tracking-wide text-muted-foreground">
-            Weight
-          </span>
-          <span className="text-[10px] font-medium uppercase tracking-wide text-muted-foreground">
-            Reps
-          </span>
+        <div className="hidden shrink-0 grid-cols-[2.75rem_2.75rem_1fr_1fr_1fr_2.75rem] items-center gap-2 px-0.5 sm:grid">
           <span />
+          <span className="text-xs font-medium text-foreground/70">Set</span>
+          <span className="text-xs font-medium text-foreground/70">
+            Last workout
+          </span>
+          <span className="text-xs font-medium text-foreground/70">Weight</span>
+          <span className="text-xs font-medium text-foreground/70">Reps</span>
+          <span className="text-center text-xs font-medium text-foreground/70">
+            Done
+          </span>
         </div>
 
-        <ScrollArea className="min-h-0 flex-1">
-          <div className="flex flex-col gap-2 pr-3">
+        {isListLayout ? (
+          <div className="flex flex-col gap-2">
             {log.sets.map((set, idx) => (
               <SetLoggerRow
                 key={idx}
                 setNumber={idx + 1}
                 set={set}
+                isActive={idx === activeSetIndex && !completed}
                 canDelete={log.sets.length > 1}
                 deleteDisabled={completed}
                 completeDisabled={!set.weight && !set.reps}
-                onToggleComplete={() => toggleSetComplete(activeExerciseId, idx)}
-                onApplyPrevious={() => applyPrevious(activeExerciseId, idx)}
-                onRepsChange={(val) =>
-                  updateSet(activeExerciseId, idx, "reps", val)
-                }
+                onToggleComplete={() => toggleSetComplete(exerciseId, idx)}
+                onApplyPrevious={() => applyPrevious(exerciseId, idx)}
+                onRepsChange={(val) => updateSet(exerciseId, idx, "reps", val)}
                 onWeightChange={(val) =>
-                  updateSet(activeExerciseId, idx, "weight", val)
+                  updateSet(exerciseId, idx, "weight", val)
                 }
-                onDelete={() => deleteSet(activeExerciseId, idx)}
+                onDelete={() => deleteSet(exerciseId, idx)}
               />
             ))}
-            <div ref={setsEndRef} aria-hidden className="h-px shrink-0" />
           </div>
-        </ScrollArea>
+        ) : (
+          <ScrollArea className="min-h-0 flex-1">
+            <div className="flex flex-col gap-2 pr-3">
+              {log.sets.map((set, idx) => (
+                <SetLoggerRow
+                  key={idx}
+                  setNumber={idx + 1}
+                  set={set}
+                  isActive={idx === activeSetIndex && !completed}
+                  canDelete={log.sets.length > 1}
+                  deleteDisabled={completed}
+                  completeDisabled={!set.weight && !set.reps}
+                  onToggleComplete={() => toggleSetComplete(exerciseId, idx)}
+                  onApplyPrevious={() => applyPrevious(exerciseId, idx)}
+                  onRepsChange={(val) =>
+                    updateSet(exerciseId, idx, "reps", val)
+                  }
+                  onWeightChange={(val) =>
+                    updateSet(exerciseId, idx, "weight", val)
+                  }
+                  onDelete={() => deleteSet(exerciseId, idx)}
+                />
+              ))}
+              <div ref={setsEndRef} aria-hidden className="h-px shrink-0" />
+            </div>
+          </ScrollArea>
+        )}
       </div>
 
       <Button
         variant="outline"
-        size="sm"
-        className="w-full shrink-0"
-        onClick={() => addSet(activeExerciseId)}
+        size="default"
+        className="h-10 w-full shrink-0 border-border/80 font-medium"
+        onClick={() => addSet(exerciseId)}
         disabled={completed}
       >
-        <PlusIcon className="size-3.5" />
+        <PlusIcon className="size-4" />
         Add set
       </Button>
 
-      {allCompleted && <WorkoutCompleteCta variant="card" />}
+      {showWorkoutCompleteCta && <WorkoutCompleteCta variant="card" />}
     </div>
   );
 }

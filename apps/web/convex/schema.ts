@@ -3,6 +3,7 @@ import { v } from "convex/values"
 
 import {
   exerciseLog,
+  jointPainLevel,
   setTemplate,
   workoutStatus,
 } from "./validators"
@@ -26,13 +27,33 @@ export default defineSchema({
     .index("by_external_id", ["externalId"])
     .index("by_user", ["userId"]),
 
+  /** Ordered collection of routines (e.g. a training split). */
+  programs: defineTable({
+    externalId: v.string(),
+    name: v.string(),
+    userId: v.optional(v.string()),
+  })
+    .index("by_external_id", ["externalId"])
+    .index("by_user", ["userId"]),
+
+  /** One routine slot in a program, with explicit order for next-workout navigation. */
+  programRoutines: defineTable({
+    programId: v.id("programs"),
+    routineId: v.id("routines"),
+    order: v.number(),
+  })
+    .index("by_program", ["programId", "order"])
+    .index("by_routine", ["routineId"]),
+
   /** One exercise slot on a routine template. */
   routineExercises: defineTable({
     routineId: v.id("routines"),
     exerciseId: v.id("exercises"),
     externalId: v.string(),
     order: v.number(),
-    reps: v.optional(v.string()),
+    reps: v.optional(v.number()),
+    repRangeMin: v.optional(v.number()),
+    repRangeMax: v.optional(v.number()),
     restSeconds: v.optional(v.number()),
     notes: v.optional(v.string()),
     setTemplates: v.array(setTemplate),
@@ -72,11 +93,30 @@ export default defineSchema({
     exerciseId: v.id("exercises"),
     externalId: v.string(),
     order: v.number(),
-    reps: v.optional(v.string()),
+    reps: v.optional(v.number()),
+    repRangeMin: v.optional(v.number()),
+    repRangeMax: v.optional(v.number()),
     restSeconds: v.optional(v.number()),
     notes: v.optional(v.string()),
     log: exerciseLog,
   })
     .index("by_workout", ["workoutId", "order"])
     .index("by_exercise", ["exerciseId"]),
+
+  /**
+   * Per-exercise biofeedback captured at workout finish (joint pain, etc.).
+   * Session-level metrics (soreness, fatigue) will live in a future workoutCheckins table.
+   */
+  exerciseBiofeedback: defineTable({
+    workoutId: v.id("workouts"),
+    workoutExerciseId: v.id("workoutExercises"),
+    exerciseId: v.id("exercises"),
+    userId: v.optional(v.string()),
+    jointPainLevel,
+    jointRegions: v.optional(v.array(v.string())),
+    recordedAt: v.number(),
+  })
+    .index("by_workout_exercise", ["workoutExerciseId"])
+    .index("by_workout", ["workoutId"])
+    .index("by_user_and_exercise", ["userId", "exerciseId"]),
 })

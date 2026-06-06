@@ -2,6 +2,7 @@ import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 
 import { getActiveExercise } from "@/features/routine/domain/session-selectors";
 import { ExerciseCard, exerciseCardHeight } from "@/features/routine/components/exercise-card/exercise-card";
+import { RoutineExerciseList } from "@/features/routine/components/routine-exercise-list";
 import { useRoutineSession } from "@/features/routine/store/routine-session-context";
 
 const exerciseCardTransition = {
@@ -24,7 +25,7 @@ const exerciseCardVariants = {
   }),
 };
 
-export function RoutineExerciseStage() {
+function RoutineExerciseStageDesktop() {
   const routine = useRoutineSession((state) => state.routine);
   const activeExerciseId = useRoutineSession((state) => state.activeExerciseId);
   const switchDirection = useRoutineSession((state) => state.switchDirection);
@@ -56,5 +57,18 @@ export function RoutineExerciseStage() {
         )}
       </AnimatePresence>
     </div>
+  );
+}
+
+export function RoutineExerciseStage() {
+  return (
+    <>
+      <div className="md:hidden">
+        <RoutineExerciseList />
+      </div>
+      <div className="hidden md:block">
+        <RoutineExerciseStageDesktop />
+      </div>
+    </>
   );
 }

@@ -1,9 +1,8 @@
 import { ArrowRightIcon } from "lucide-react";
 
 import {
-  useNextRoutine,
-  useProceedToNextWorkout,
   useRoutineSession,
+  useWorkoutLifecycle,
 } from "@/features/routine/store/routine-session-context";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
@@ -13,8 +12,7 @@ type WorkoutCompleteCtaProps = {
 };
 
 export function WorkoutCompleteCta({ variant = "summary" }: WorkoutCompleteCtaProps) {
-  const nextRoutine = useNextRoutine();
-  const proceedToNextWorkout = useProceedToNextWorkout();
+  const { nextRoutine, proceedToNext } = useWorkoutLifecycle();
   const isStoppingWorkout = useRoutineSession((state) => state.isStoppingWorkout);
   const workoutStatus = useRoutineSession((state) => state.workoutStatus);
 
@@ -31,7 +29,7 @@ export function WorkoutCompleteCta({ variant = "summary" }: WorkoutCompleteCtaPr
       type="button"
       size="sm"
       disabled={isStoppingWorkout}
-      onClick={() => void proceedToNextWorkout()}
+      onClick={() => void proceedToNext()}
       className={cn(
         "w-full shrink-0 gap-1.5",
         variant === "summary" &&

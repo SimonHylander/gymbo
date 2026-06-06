@@ -15,7 +15,6 @@ import { API_BASE } from "@/lib/api-base";
 import type { Document } from "@/lib/db/schema";
 import { cn, fetcher } from "@/lib/utils";
 import type { ArtifactKind, UIArtifact } from "./artifact";
-import { CodeEditor } from "./code-editor";
 import { InlineDocumentSkeleton } from "./document-skeleton";
 import {
   CodeIcon,
@@ -280,9 +279,7 @@ const DocumentContent = ({ document }: { document: Document }) => {
         <Editor {...commonProps} onSaveContent={handleSaveContent} />
       ) : document.kind === "code" ? (
         <div className="relative flex w-full flex-1">
-          <div className="absolute inset-0">
-            <CodeEditor {...commonProps} onSaveContent={handleSaveContent} />
-          </div>
+          Hello
         </div>
       ) : document.kind === "sheet" ? (
         <div className="relative flex size-full flex-1 p-4">

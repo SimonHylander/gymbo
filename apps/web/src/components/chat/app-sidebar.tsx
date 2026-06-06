@@ -1,6 +1,7 @@
 "use client";
 
 import {
+  DumbbellIcon,
   MessageSquareIcon,
   PanelLeftIcon,
   PenSquareIcon,
@@ -104,6 +105,21 @@ export function AppSidebar({ user }: { user: MockUser | undefined }) {
           <SidebarGroup className="pt-1">
             <SidebarGroupContent>
               <SidebarMenu>
+                <SidebarMenuItem>
+                  <SidebarMenuButton
+                    asChild
+                    className="h-8 rounded-lg text-[13px] text-sidebar-foreground/70 transition-colors duration-150 hover:bg-sidebar-accent/50 hover:text-sidebar-foreground"
+                    tooltip="Routines"
+                  >
+                    <Link
+                      to="/routines"
+                      onClick={() => setOpenMobile(false)}
+                    >
+                      <DumbbellIcon className="size-4" />
+                      <span className="font-medium">Routines</span>
+                    </Link>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
                 <SidebarMenuItem>
                   <SidebarMenuButton
                     className="h-8 rounded-lg border border-sidebar-border text-[13px] text-sidebar-foreground/70 transition-colors duration-150 hover:bg-sidebar-accent/50 hover:text-sidebar-foreground"

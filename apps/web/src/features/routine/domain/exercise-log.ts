@@ -153,22 +153,3 @@ export function toggleSetComplete(
   };
 }
 
-export function toggleExerciseComplete(
-  log: ExerciseLogState
-): ExerciseLogState {
-  const wasCompleted = log.completed;
-
-  if (wasCompleted) {
-    return {
-      ...log,
-      completed: false,
-      sets: log.sets.map((set) => ({ ...set, status: "pending" as const })),
-    };
-  }
-
-  return {
-    ...log,
-    completed: true,
-    sets: markSetsCompleted(log.sets),
-  };
-}

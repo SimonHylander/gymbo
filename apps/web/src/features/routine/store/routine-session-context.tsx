@@ -4,6 +4,8 @@ import {
   createContext,
   use,
   useCallback,
+  useEffect,
+  useMemo,
   useRef,
   type ReactNode,
   type RefObject,
@@ -16,10 +18,16 @@ import {
   createWorkoutSync,
   type WorkoutMutations,
 } from "@/features/routine/adapters/sync-workout";
+import { WorkoutJointPainFlow } from "@/features/routine/components/workout-joint-pain-flow";
 import type {
   Routine,
   WorkoutSessionSnapshot,
 } from "@/features/routine/domain/types";
+import {
+  createWorkoutLifecycle,
+  type NextRoutine,
+  type WorkoutLifecycleContextValue,
+} from "@/features/routine/domain/workout-lifecycle";
 import {
   createRoutineSessionStore,
   type RoutineSessionActions,
@@ -31,16 +39,8 @@ import { toast } from "@/components/chat/toast";
 const RoutineStoreContext =
   createContext<StoreApi<RoutineSessionStore> | null>(null);
 
-type NextRoutine = {
-  externalId: string;
-  name: string;
-};
-
-const NextRoutineContext = createContext<NextRoutine | null>(null);
-
-const ProceedToNextWorkoutContext = createContext<
-  (() => Promise<void>) | null
->(null);
+const WorkoutLifecycleContext =
+  createContext<WorkoutLifecycleContextValue | null>(null);
 
 type RoutineMeta = {
   scrollRef: RefObject<HTMLDivElement | null>;
@@ -49,6 +49,51 @@ type RoutineMeta = {
 };
 
 const RoutineMetaContext = createContext<RoutineMeta | null>(null);
+
+type RoutineJointPainCheckInProps = {
+  recordJointPain: WorkoutMutations["recordJointPain"];
+  onComplete: () => Promise<void>;
+  onCancel: () => void;
+};
+
+function RoutineJointPainCheckIn({
+  recordJointPain,
+  onComplete,
+  onCancel,
+}: RoutineJointPainCheckInProps) {
+  const store = use(RoutineStoreContext);
+  if (!store) return null;
+
+  const open = useStore(store, (state) => state.jointPainCheckInOpen);
+  const targetExerciseId = useStore(
+    store,
+    (state) => state.jointPainCheckInExerciseId
+  );
+  const workoutId = useStore(store, (state) => state.workoutId);
+  const routine = useStore(store, (state) => state.routine);
+  const workoutExerciseIds = useStore(
+    store,
+    (state) => state.workoutExerciseIds
+  );
+  const advanceAfterJointPainCheckIn = useStore(
+    store,
+    (state) => state.advanceAfterJointPainCheckIn
+  );
+
+  return (
+    <WorkoutJointPainFlow
+      open={open}
+      targetExerciseId={targetExerciseId}
+      workoutId={workoutId}
+      exercises={routine.exercises}
+      workoutExerciseIds={workoutExerciseIds}
+      recordJointPain={recordJointPain}
+      onComplete={onComplete}
+      onSingleExerciseSaved={advanceAfterJointPainCheckIn}
+      onCancel={onCancel}
+    />
+  );
+}
 
 type RoutineProviderProps = {
   routine: Routine;
@@ -79,6 +124,9 @@ export function RoutineProvider({
   const applyPreviousToSetMutation = useMutation(
     api.workoutExercises.applyPreviousToSet
   );
+  const recordJointPainMutation = useMutation(
+    api.exerciseBiofeedback.recordJointPain
+  );
 
   syncRef.current = createWorkoutSync({
     startMutation,
@@ -88,10 +136,18 @@ export function RoutineProvider({
     addSetMutation,
     removeSetMutation,
     applyPreviousToSetMutation,
+    recordJointPainMutation,
   });
 
   const onSyncError = useCallback((message: string) => {
     toast({ type: "error", description: message });
+  }, []);
+
+  const onWorkoutAutoStarted = useCallback(() => {
+    toast({
+      type: "success",
+      description: "Workout started — sets are saving",
+    });
   }, []);
 
   if (!storeRef.current) {
@@ -99,9 +155,33 @@ export function RoutineProvider({
       routine,
       ongoingSession,
       syncRef,
-      onSyncError
+      { onSyncError, onWorkoutAutoStarted }
     );
   }
+
+  useEffect(() => {
+    const store = storeRef.current;
+    if (!store) return;
+
+    const flushOnHide = () => {
+      store.getState().flushPendingSync();
+    };
+
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === "hidden") {
+        flushOnHide();
+      }
+    };
+
+    window.addEventListener("pagehide", flushOnHide);
+    document.addEventListener("visibilitychange", handleVisibilityChange);
+
+    return () => {
+      flushOnHide();
+      window.removeEventListener("pagehide", flushOnHide);
+      document.removeEventListener("visibilitychange", handleVisibilityChange);
+    };
+  }, []);
 
   const scrollToBottom = useCallback(() => {
     scrollRef.current?.scrollTo({
@@ -110,35 +190,56 @@ export function RoutineProvider({
     });
   }, []);
 
-  const proceedToNextWorkout = useCallback(async () => {
-    const store = storeRef.current;
-    if (!store) return;
-
-    const state = store.getState();
-    if (state.workoutStatus === "ongoing") {
-      await state.stopWorkout();
-    }
-
+  const navigateAfterFinish = useCallback(async () => {
     if (nextRoutine) {
       await navigate({
-        to: "/routine/$id",
+        to: "/routines/$id",
         params: { id: nextRoutine.externalId },
       });
       await router.invalidate();
     }
   }, [navigate, nextRoutine, router]);
 
+  const navigateHome = useCallback(async () => {
+    await navigate({ to: "/routines" });
+  }, [navigate]);
+
+  const lifecycle = useMemo(
+    () =>
+      createWorkoutLifecycle({
+        getStore: () => storeRef.current,
+        navigateAfterFinish,
+        navigateHome,
+      }),
+    [navigateAfterFinish, navigateHome]
+  );
+
+  const lifecycleValue = useMemo<WorkoutLifecycleContextValue>(
+    () => ({
+      ...lifecycle,
+      nextRoutine,
+    }),
+    [lifecycle, nextRoutine]
+  );
+
   return (
     <RoutineStoreContext value={storeRef.current}>
-      <NextRoutineContext value={nextRoutine}>
-        <ProceedToNextWorkoutContext value={proceedToNextWorkout}>
-          <RoutineMetaContext
-            value={{ scrollRef, inputRef, scrollToBottom }}
-          >
-            {children}
-          </RoutineMetaContext>
-        </ProceedToNextWorkoutContext>
-      </NextRoutineContext>
+      <WorkoutLifecycleContext value={lifecycleValue}>
+        <RoutineMetaContext value={{ scrollRef, inputRef, scrollToBottom }}>
+          <RoutineJointPainCheckIn
+            recordJointPain={(args) => {
+              const sync = syncRef.current;
+              if (!sync) {
+                throw new Error("Workout sync not initialized");
+              }
+              return sync.recordJointPain(args);
+            }}
+            onComplete={lifecycle.completeJointPainCheckIn}
+            onCancel={lifecycle.cancelJointPainCheckIn}
+          />
+          {children}
+        </RoutineMetaContext>
+      </WorkoutLifecycleContext>
     </RoutineStoreContext>
   );
 }
@@ -171,14 +272,61 @@ export function useRoutineActions(): RoutineSessionActions {
       applyPrevious: state.applyPrevious,
       addSet: state.addSet,
       deleteSet: state.deleteSet,
-      toggleExerciseComplete: state.toggleExerciseComplete,
       toggleSetComplete: state.toggleSetComplete,
       skipRestTimer: state.skipRestTimer,
       adjustRestTimer: state.adjustRestTimer,
       sendNote: state.sendNote,
       setNoteDraft: state.setNoteDraft,
       startWorkout: state.startWorkout,
-      stopWorkout: state.stopWorkout,
+    }))
+  );
+}
+
+export function useExerciseLogging() {
+  const store = useRoutineStore();
+
+  return useStore(
+    store,
+    useShallow((state) => ({
+      routine: state.routine,
+      activeExerciseId: state.activeExerciseId,
+      exerciseLogs: state.exerciseLogs,
+      updateSet: state.updateSet,
+      applyPrevious: state.applyPrevious,
+      addSet: state.addSet,
+      deleteSet: state.deleteSet,
+      toggleSetComplete: state.toggleSetComplete,
+    }))
+  );
+}
+
+export function useRestTimerControls() {
+  const store = useRoutineStore();
+
+  return useStore(
+    store,
+    useShallow((state) => ({
+      restTimer: state.restTimer,
+      workoutStatus: state.workoutStatus,
+      skipRestTimer: state.skipRestTimer,
+      adjustRestTimer: state.adjustRestTimer,
+    }))
+  );
+}
+
+export function useWorkoutSessionMeta() {
+  const store = useRoutineStore();
+
+  return useStore(
+    store,
+    useShallow((state) => ({
+      workoutStatus: state.workoutStatus,
+      syncState: state.syncState,
+      workoutStartedAt: state.workoutStartedAt,
+      workoutEndedAt: state.workoutEndedAt,
+      isStartingWorkout: state.isStartingWorkout,
+      isStoppingWorkout: state.isStoppingWorkout,
+      startWorkout: state.startWorkout,
     }))
   );
 }
@@ -191,16 +339,10 @@ export function useRoutineMeta() {
   return meta;
 }
 
-export function useNextRoutine(): NextRoutine | null {
-  return use(NextRoutineContext);
-}
-
-export function useProceedToNextWorkout(): () => Promise<void> {
-  const proceed = use(ProceedToNextWorkoutContext);
-  if (!proceed) {
-    throw new Error(
-      "useProceedToNextWorkout must be used within Routine.Provider"
-    );
+export function useWorkoutLifecycle(): WorkoutLifecycleContextValue {
+  const lifecycle = use(WorkoutLifecycleContext);
+  if (!lifecycle) {
+    throw new Error("useWorkoutLifecycle must be used within Routine.Provider");
   }
-  return proceed;
+  return lifecycle;
 }

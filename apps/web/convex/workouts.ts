@@ -2,6 +2,7 @@ import { ConvexError, v } from "convex/values"
 
 import type { Doc, Id } from "./_generated/dataModel"
 import { mutation, query, type MutationCtx, type QueryCtx } from "./_generated/server"
+import { getRoutineByExternalId } from "./lib/routines"
 import { exerciseLog, workoutStatus } from "./validators"
 
 const workoutSessionValidator = v.object({
@@ -58,22 +59,6 @@ async function loadWorkoutSession(
     exerciseLogs,
     workoutExerciseIds,
   }
-}
-
-async function getRoutineByExternalId(ctx: QueryCtx | MutationCtx, externalId: string) {
-  const routine = await ctx.db
-    .query("routines")
-    .withIndex("by_external_id", (q) => q.eq("externalId", externalId))
-    .unique()
-
-  if (!routine) {
-    throw new ConvexError({
-      code: "NOT_FOUND",
-      message: "Routine not found",
-    })
-  }
-
-  return routine
 }
 
 export const getOngoingForRoutine = query({
@@ -162,6 +147,8 @@ export const start = mutation({
         externalId: routineExercise.externalId,
         order: routineExercise.order,
         reps: routineExercise.reps,
+        repRangeMin: routineExercise.repRangeMin,
+        repRangeMax: routineExercise.repRangeMax,
         restSeconds: routineExercise.restSeconds,
         notes: routineExercise.notes,
         log: {

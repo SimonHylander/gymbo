@@ -83,3 +83,15 @@ export function getWorkoutStats(
 
   return { completedSets, totalVolumeKg };
 }
+
+export function hasWorkoutProgress(
+  exerciseLogs: Record<string, ExerciseLogState>
+): boolean {
+  for (const log of Object.values(exerciseLogs)) {
+    for (const set of log.sets) {
+      if (set.status === "completed") return true;
+      if (set.weight.trim() || set.reps.trim()) return true;
+    }
+  }
+  return false;
+}

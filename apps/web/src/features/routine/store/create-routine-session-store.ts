@@ -9,11 +9,20 @@ import {
   deleteSet,
   isExerciseComplete,
   markExerciseComplete,
-  toggleExerciseComplete,
   toggleSetComplete,
   updateSetField,
 } from "@/features/routine/domain/exercise-log";
+import {
+  openJointPainForExercise,
+  openJointPainWizard,
+  shouldPromptJointPainAfterExerciseComplete,
+} from "@/features/routine/domain/joint-pain-session";
 import { getRestDuration } from "@/features/routine/domain/rest-timer";
+import {
+  adjustRestTimer as adjustRestTimerState,
+  resolveRestTimerAfterSetToggle,
+  type RestTimerState,
+} from "@/features/routine/domain/rest-timer-session";
 import {
   getExerciseIndex,
   getNextIncompleteId,
@@ -27,20 +36,20 @@ import type {
   WorkoutSessionSnapshot,
   WorkoutStatus,
 } from "@/features/routine/domain/types";
+import {
+  createWorkoutSessionSync,
+  type SyncState,
+  type WorkoutSessionSync,
+} from "@/features/routine/sync/workout-session-sync";
 import type { Id } from "../../../../convex/_generated/dataModel";
+
+export type { SyncState };
 
 function genId() {
   return Math.random().toString(36).slice(2);
 }
 
-const LOG_SYNC_DEBOUNCE_MS = 300;
-
-export type RestTimerState = {
-  exerciseId: string;
-  setIndex: number;
-  totalSeconds: number;
-  endsAt: number;
-};
+export type { RestTimerState };
 
 export type RoutineSessionStore = {
   routine: Routine;
@@ -56,7 +65,11 @@ export type RoutineSessionStore = {
   workoutEndedAt: number | null;
   isStartingWorkout: boolean;
   isStoppingWorkout: boolean;
+  syncState: SyncState;
   restTimer: RestTimerState | null;
+  jointPainCheckInOpen: boolean;
+  /** When set, check-in is for one exercise just completed. When null, wizard walks all exercises. */
+  jointPainCheckInExerciseId: string | null;
 
   selectExercise: (exerciseId: string) => void;
   goToPreviousExercise: () => void;
@@ -70,7 +83,6 @@ export type RoutineSessionStore = {
   applyPrevious: (exerciseId: string, setIdx: number) => void;
   addSet: (exerciseId: string) => void;
   deleteSet: (exerciseId: string, setIdx: number) => void;
-  toggleExerciseComplete: (exerciseId: string) => void;
   toggleSetComplete: (exerciseId: string, setIdx: number) => void;
   skipRestTimer: () => void;
   adjustRestTimer: (deltaSeconds: number) => void;
@@ -78,6 +90,11 @@ export type RoutineSessionStore = {
   setNoteDraft: (text: string) => void;
   startWorkout: () => Promise<void>;
   stopWorkout: () => Promise<void>;
+  openJointPainCheckIn: () => void;
+  openJointPainCheckInForExercise: (exerciseId: string) => void;
+  closeJointPainCheckIn: () => void;
+  advanceAfterJointPainCheckIn: (exerciseId: string) => void;
+  flushPendingSync: () => void;
 };
 
 export type WorkoutSyncRef = {
@@ -112,59 +129,27 @@ function hydrateFromSession(
   };
 }
 
+export type RoutineSessionStoreOptions = {
+  onSyncError?: (message: string) => void;
+  onWorkoutAutoStarted?: () => void;
+};
+
 export function createRoutineSessionStore(
   routine: Routine,
   ongoingSession: WorkoutSessionSnapshot | null,
   syncRef: WorkoutSyncRef,
-  onSyncError?: (message: string) => void
+  options?: RoutineSessionStoreOptions | ((message: string) => void)
 ): StoreApi<RoutineSessionStore> {
-  const debounceTimers = new Map<string, ReturnType<typeof setTimeout>>();
+  const { onSyncError, onWorkoutAutoStarted } =
+    typeof options === "function"
+      ? { onSyncError: options, onWorkoutAutoStarted: undefined }
+      : (options ?? {});
 
-  const flushLogSync = (exerciseId: string, get: () => RoutineSessionStore) => {
-    const existing = debounceTimers.get(exerciseId);
-    if (existing) {
-      clearTimeout(existing);
-      debounceTimers.delete(exerciseId);
-    }
+  const initialHydration = ongoingSession
+    ? hydrateFromSession(ongoingSession)
+    : null;
 
-    const state = get();
-    const workoutExerciseId = state.workoutExerciseIds[exerciseId];
-    const log = state.exerciseLogs[exerciseId];
-    const sync = syncRef.current;
-
-    if (!workoutExerciseId || !log || !sync || state.workoutStatus !== "ongoing") {
-      return;
-    }
-
-    void sync.updateLog({ workoutExerciseId, log }).catch(() => {
-      onSyncError?.("Failed to save set changes");
-    });
-  };
-
-  const scheduleLogSync = (exerciseId: string, get: () => RoutineSessionStore) => {
-    const existing = debounceTimers.get(exerciseId);
-    if (existing) clearTimeout(existing);
-
-    debounceTimers.set(
-      exerciseId,
-      setTimeout(() => {
-        debounceTimers.delete(exerciseId);
-        flushLogSync(exerciseId, get);
-      }, LOG_SYNC_DEBOUNCE_MS)
-    );
-  };
-
-  const persistLog = (
-    exerciseId: string,
-    get: () => RoutineSessionStore,
-    debounce: boolean
-  ) => {
-    if (debounce) {
-      scheduleLogSync(exerciseId, get);
-    } else {
-      flushLogSync(exerciseId, get);
-    }
-  };
+  let sessionSync: WorkoutSessionSync;
 
   const switchExercise = (
     exerciseId: string,
@@ -174,304 +159,279 @@ export function createRoutineSessionStore(
     const state = get();
     if (exerciseId === state.activeExerciseId) return;
 
-    flushLogSync(state.activeExerciseId, get);
+    const previousExerciseId = state.activeExerciseId;
+    const currentIndex = getExerciseIndex(state.routine, previousExerciseId);
 
-    const currentIndex = getExerciseIndex(state.routine, state.activeExerciseId);
     set({
       activeExerciseId: exerciseId,
       switchDirection: getSwitchDirection(state.routine, currentIndex, exerciseId),
     });
 
-    const sync = syncRef.current;
-    if (sync && state.workoutId && state.workoutStatus === "ongoing") {
-      void sync
-        .setActiveExercise({
-          workoutId: state.workoutId,
-          exerciseExternalId: exerciseId,
-        })
-        .catch(() => {
-          onSyncError?.("Failed to save active exercise");
-        });
-    }
+    sessionSync.onExerciseSwitch(previousExerciseId, exerciseId);
   };
 
-  const initialHydration = ongoingSession
-    ? hydrateFromSession(ongoingSession)
-    : null;
+  const promptJointPainAfterExerciseComplete = (
+    exerciseId: string,
+    get: () => RoutineSessionStore,
+    set: (partial: Partial<RoutineSessionStore>) => void
+  ) => {
+    const state = get();
+    if (
+      !shouldPromptJointPainAfterExerciseComplete({
+        jointPainCheckInOpen: state.jointPainCheckInOpen,
+        workoutStatus: state.workoutStatus,
+      })
+    ) {
+      return;
+    }
 
-  return createStore<RoutineSessionStore>((set, get) => ({
-    routine,
-    exerciseLogs: initialHydration?.exerciseLogs ?? createInitialLogs(routine.exercises),
-    activeExerciseId:
-      initialHydration?.activeExerciseId ?? routine.exercises[0]?.id ?? "",
-    switchDirection: 0,
-    notes: [],
-    noteDraft: "",
-    workoutId: initialHydration?.workoutId ?? null,
-    workoutExerciseIds: initialHydration?.workoutExerciseIds ?? {},
-    workoutStatus: initialHydration?.workoutStatus ?? "pending",
-    workoutStartedAt: initialHydration?.workoutStartedAt ?? null,
-    workoutEndedAt: initialHydration?.workoutEndedAt ?? null,
-    isStartingWorkout: false,
-    isStoppingWorkout: false,
-    restTimer: null,
-
-    selectExercise: (exerciseId) => switchExercise(exerciseId, get, set),
-
-    goToPreviousExercise: () => {
-      const state = get();
-      const currentIndex = getExerciseIndex(state.routine, state.activeExerciseId);
-      const previousExercise = state.routine.exercises[currentIndex - 1];
-      if (previousExercise) {
-        switchExercise(previousExercise.id, get, set);
-      }
-    },
-
-    goToNextExercise: () => {
-      const state = get();
-      const currentIndex = getExerciseIndex(state.routine, state.activeExerciseId);
-      const nextExercise = state.routine.exercises[currentIndex + 1];
-      if (nextExercise) {
-        switchExercise(nextExercise.id, get, set);
-      }
-    },
-
-    updateSet: (exerciseId, setIdx, field, value) => {
-      set((state) => ({
-        exerciseLogs: {
-          ...state.exerciseLogs,
-          [exerciseId]: updateSetField(
-            state.exerciseLogs[exerciseId],
-            setIdx,
-            field,
-            value
-          ),
-        },
-      }));
-      persistLog(exerciseId, get, true);
-    },
-
-    applyPrevious: (exerciseId, setIdx) => {
-      set((state) => ({
-        exerciseLogs: {
-          ...state.exerciseLogs,
-          [exerciseId]: applyPreviousToSet(
-            state.exerciseLogs[exerciseId],
-            setIdx
-          ),
-        },
-      }));
-
-      const state = get();
-      const workoutExerciseId = state.workoutExerciseIds[exerciseId];
-      const sync = syncRef.current;
-
-      if (sync && workoutExerciseId && state.workoutStatus === "ongoing") {
-        void sync
-          .applyPreviousToSet({ workoutExerciseId, setIndex: setIdx })
-          .catch(() => {
-            onSyncError?.("Failed to apply previous set");
-          });
-      } else {
-        persistLog(exerciseId, get, false);
-      }
-    },
-
-    addSet: (exerciseId) => {
-      set((state) => ({
-        exerciseLogs: {
-          ...state.exerciseLogs,
-          [exerciseId]: addSet(state.exerciseLogs[exerciseId]),
-        },
-      }));
-
-      const state = get();
-      const workoutExerciseId = state.workoutExerciseIds[exerciseId];
-      const sync = syncRef.current;
-
-      if (sync && workoutExerciseId && state.workoutStatus === "ongoing") {
-        void sync.addSet({ workoutExerciseId }).catch(() => {
-          onSyncError?.("Failed to add set");
-        });
-      }
-    },
-
-    deleteSet: (exerciseId, setIdx) => {
-      set((state) => ({
-        exerciseLogs: {
-          ...state.exerciseLogs,
-          [exerciseId]: deleteSet(state.exerciseLogs[exerciseId], setIdx),
-        },
-      }));
-
-      const state = get();
-      const workoutExerciseId = state.workoutExerciseIds[exerciseId];
-      const sync = syncRef.current;
-
-      if (sync && workoutExerciseId && state.workoutStatus === "ongoing") {
-        void sync.removeSet({ workoutExerciseId, setIndex: setIdx }).catch(() => {
-          onSyncError?.("Failed to remove set");
-        });
-      }
-    },
-
-    toggleExerciseComplete: (exerciseId) => {
-      const state = get();
-      const wasCompleted = state.exerciseLogs[exerciseId]?.completed;
-
-      set((current) => ({
-        exerciseLogs: {
-          ...current.exerciseLogs,
-          [exerciseId]: toggleExerciseComplete(
-            current.exerciseLogs[exerciseId]
-          ),
-        },
-      }));
-
-      persistLog(exerciseId, get, false);
-
-      if (!wasCompleted) {
-        const nextId = getNextIncompleteId(get().routine, get().exerciseLogs);
-        if (nextId && nextId !== exerciseId) {
-          queueMicrotask(() => get().selectExercise(nextId));
-        }
-      }
-    },
-
-    toggleSetComplete: (exerciseId, setIdx) => {
-      const state = get();
-      const log = state.exerciseLogs[exerciseId];
-      const setEntry = log?.sets[setIdx];
-      const wasCompleted = setEntry?.status === "completed";
-      const wasExerciseComplete = isExerciseComplete(log);
-
-      let updatedLog = toggleSetComplete(
-        state.exerciseLogs[exerciseId],
-        setIdx
-      );
-
-      if (isExerciseComplete(updatedLog) && !wasExerciseComplete) {
-        updatedLog = markExerciseComplete(updatedLog);
+    void sessionSync.ensureWorkoutStarted().then(() => {
+      const current = get();
+      if (current.workoutStatus !== "ongoing" || !current.workoutId) {
+        return;
       }
 
-      set((current) => ({
-        exerciseLogs: {
-          ...current.exerciseLogs,
-          [exerciseId]: updatedLog,
-        },
-      }));
+      set(openJointPainForExercise(exerciseId));
+    });
+  };
 
-      if (!wasCompleted && setEntry && canCompleteSet(setEntry)) {
-        const exercise = state.routine.exercises.find(
-          (entry) => entry.id === exerciseId
-        );
-        if (exercise) {
-          const totalSeconds = getRestDuration(exercise.restSeconds);
-          set({
-            restTimer: {
-              exerciseId,
-              setIndex: setIdx,
-              totalSeconds,
-              endsAt: Date.now() + totalSeconds * 1000,
-            },
-          });
-        }
-      } else if (wasCompleted) {
-        const { restTimer } = get();
-        if (
-          restTimer?.exerciseId === exerciseId &&
-          restTimer.setIndex === setIdx
-        ) {
-          set({ restTimer: null });
-        }
-      }
-
-      persistLog(exerciseId, get, false);
-
-      if (isExerciseComplete(updatedLog) && !wasExerciseComplete) {
-        const nextId = getNextIncompleteId(get().routine, get().exerciseLogs);
-        if (nextId && nextId !== exerciseId) {
-          queueMicrotask(() => get().selectExercise(nextId));
-        }
-      }
-    },
-
-    skipRestTimer: () => set({ restTimer: null }),
-
-    adjustRestTimer: (deltaSeconds) => {
-      const state = get();
-      if (!state.restTimer) return;
-
-      const now = Date.now();
-      const endsAt = Math.max(
-        now,
-        state.restTimer.endsAt + deltaSeconds * 1000
-      );
-
-      set({
-        restTimer: {
-          ...state.restTimer,
-          endsAt,
-        },
+  return createStore<RoutineSessionStore>((set, get) => {
+    if (!sessionSync) {
+      sessionSync = createWorkoutSessionSync({
+        getState: get,
+        setState: set,
+        getMutations: () => syncRef.current,
+        routineExternalId: routine.id,
+        hydrateFromSession,
+        onError: onSyncError,
+        onWorkoutAutoStarted,
       });
-    },
+    }
 
-    sendNote: () => {
-      const text = get().noteDraft.trim();
-      if (!text) return;
+    return {
+      routine,
+      exerciseLogs:
+        initialHydration?.exerciseLogs ?? createInitialLogs(routine.exercises),
+      activeExerciseId:
+        initialHydration?.activeExerciseId ?? routine.exercises[0]?.id ?? "",
+      switchDirection: 0,
+      notes: [],
+      noteDraft: "",
+      workoutId: initialHydration?.workoutId ?? null,
+      workoutExerciseIds: initialHydration?.workoutExerciseIds ?? {},
+      workoutStatus: initialHydration?.workoutStatus ?? "pending",
+      workoutStartedAt: initialHydration?.workoutStartedAt ?? null,
+      workoutEndedAt: initialHydration?.workoutEndedAt ?? null,
+      isStartingWorkout: false,
+      isStoppingWorkout: false,
+      syncState:
+        initialHydration?.workoutStatus === "ongoing" ? "saved" : "idle",
+      restTimer: null,
+      jointPainCheckInOpen: false,
+      jointPainCheckInExerciseId: null,
 
-      set((state) => ({
-        notes: [...state.notes, { id: genId(), text }],
-        noteDraft: "",
-      }));
-    },
+      selectExercise: (exerciseId) => switchExercise(exerciseId, get, set),
 
-    setNoteDraft: (text) => set({ noteDraft: text }),
+      goToPreviousExercise: () => {
+        const state = get();
+        const currentIndex = getExerciseIndex(
+          state.routine,
+          state.activeExerciseId
+        );
+        const previousExercise = state.routine.exercises[currentIndex - 1];
+        if (previousExercise) {
+          switchExercise(previousExercise.id, get, set);
+        }
+      },
 
-    startWorkout: async () => {
-      const state = get();
-      if (state.workoutStartedAt !== null || state.isStartingWorkout) return;
-      if (state.workoutStatus === "completed") return;
+      goToNextExercise: () => {
+        const state = get();
+        const currentIndex = getExerciseIndex(
+          state.routine,
+          state.activeExerciseId
+        );
+        const nextExercise = state.routine.exercises[currentIndex + 1];
+        if (nextExercise) {
+          switchExercise(nextExercise.id, get, set);
+        }
+      },
 
-      const sync = syncRef.current;
-      if (!sync) return;
+      updateSet: (exerciseId, setIdx, field, value) => {
+        set((state) => ({
+          exerciseLogs: {
+            ...state.exerciseLogs,
+            [exerciseId]: updateSetField(
+              state.exerciseLogs[exerciseId],
+              setIdx,
+              field,
+              value
+            ),
+          },
+        }));
 
-      set({ isStartingWorkout: true });
-      try {
-        const session = await sync.start({ routineExternalId: routine.id });
+        const persist = () => sessionSync.persistLog(exerciseId, true);
+
+        if (value.trim()) {
+          void sessionSync.ensureWorkoutStarted().then(persist);
+        } else {
+          persist();
+        }
+      },
+
+      applyPrevious: (exerciseId, setIdx) => {
+        set((state) => ({
+          exerciseLogs: {
+            ...state.exerciseLogs,
+            [exerciseId]: applyPreviousToSet(
+              state.exerciseLogs[exerciseId],
+              setIdx
+            ),
+          },
+        }));
+
+        sessionSync.applyPrevious(exerciseId, setIdx);
+      },
+
+      addSet: (exerciseId) => {
+        set((state) => ({
+          exerciseLogs: {
+            ...state.exerciseLogs,
+            [exerciseId]: addSet(state.exerciseLogs[exerciseId]),
+          },
+        }));
+
+        sessionSync.addSet(exerciseId);
+      },
+
+      deleteSet: (exerciseId, setIdx) => {
+        set((state) => ({
+          exerciseLogs: {
+            ...state.exerciseLogs,
+            [exerciseId]: deleteSet(state.exerciseLogs[exerciseId], setIdx),
+          },
+        }));
+
+        sessionSync.removeSet(exerciseId, setIdx);
+      },
+
+      toggleSetComplete: (exerciseId, setIdx) => {
+        const state = get();
+        const log = state.exerciseLogs[exerciseId];
+        const setEntry = log?.sets[setIdx];
+        const wasCompleted = setEntry?.status === "completed";
+
+        const applyToggle = () => {
+          const currentState = get();
+          const currentLog = currentState.exerciseLogs[exerciseId];
+          const wasExerciseComplete = isExerciseComplete(currentLog);
+
+          let updatedLog = toggleSetComplete(currentLog, setIdx);
+
+          if (isExerciseComplete(updatedLog) && !wasExerciseComplete) {
+            updatedLog = markExerciseComplete(updatedLog);
+          }
+
+          set((current) => ({
+            exerciseLogs: {
+              ...current.exerciseLogs,
+              [exerciseId]: updatedLog,
+            },
+          }));
+
+          const exercise = currentState.routine.exercises.find(
+            (entry) => entry.id === exerciseId
+          );
+          const restTimer = resolveRestTimerAfterSetToggle({
+            timer: get().restTimer,
+            exerciseId,
+            setIndex: setIdx,
+            wasCompleted,
+            canStartRest: Boolean(setEntry && canCompleteSet(setEntry)),
+            restSeconds: getRestDuration(exercise?.restSeconds),
+            now: Date.now(),
+          });
+
+          if (restTimer !== get().restTimer) {
+            set({ restTimer });
+          }
+
+          sessionSync.persistLog(exerciseId, false);
+
+          if (isExerciseComplete(updatedLog) && !wasExerciseComplete) {
+            promptJointPainAfterExerciseComplete(exerciseId, get, set);
+          }
+        };
+
+        if (!wasCompleted) {
+          void sessionSync.ensureWorkoutStarted().then(applyToggle);
+        } else {
+          applyToggle();
+        }
+      },
+
+      skipRestTimer: () => set({ restTimer: null }),
+
+      adjustRestTimer: (deltaSeconds) => {
+        const state = get();
+        if (!state.restTimer) return;
+
         set({
-          ...hydrateFromSession(session),
-          isStartingWorkout: false,
+          restTimer: adjustRestTimerState(
+            state.restTimer,
+            deltaSeconds,
+            Date.now()
+          ),
         });
-      } catch {
-        onSyncError?.("Failed to start workout");
-        set({ isStartingWorkout: false });
-      }
-    },
+      },
 
-    stopWorkout: async () => {
-      const state = get();
-      if (!state.workoutId || state.isStoppingWorkout) return;
-      if (state.workoutStatus === "completed") return;
+      sendNote: () => {
+        const text = get().noteDraft.trim();
+        if (!text) return;
 
-      const sync = syncRef.current;
-      if (!sync) return;
+        set((state) => ({
+          notes: [...state.notes, { id: genId(), text }],
+          noteDraft: "",
+        }));
+      },
 
-      flushLogSync(state.activeExerciseId, get);
+      setNoteDraft: (text) => set({ noteDraft: text }),
 
-      set({ isStoppingWorkout: true });
-      try {
-        const session = await sync.complete({ workoutId: state.workoutId });
-        set({
-          ...hydrateFromSession(session),
-          isStoppingWorkout: false,
-        });
-      } catch {
-        onSyncError?.("Failed to end workout");
-        set({ isStoppingWorkout: false });
-      }
-    },
-  }));
+      startWorkout: () => sessionSync.startWorkout(),
+
+      flushPendingSync: () => {
+        const state = get();
+        if (state.workoutStatus !== "ongoing") return;
+        sessionSync.flushAllLogs();
+      },
+
+      stopWorkout: async () => {
+        set({ restTimer: null });
+        try {
+          await sessionSync.stopWorkout();
+        } catch {
+          // Error surfaced via onSyncError in the port.
+        }
+      },
+
+      openJointPainCheckIn: () => set(openJointPainWizard()),
+
+      openJointPainCheckInForExercise: (exerciseId) =>
+        set(openJointPainForExercise(exerciseId)),
+
+      closeJointPainCheckIn: () =>
+        set({ jointPainCheckInOpen: false, jointPainCheckInExerciseId: null }),
+
+      advanceAfterJointPainCheckIn: (exerciseId) => {
+        set({ jointPainCheckInOpen: false, jointPainCheckInExerciseId: null });
+
+        const state = get();
+        const nextId = getNextIncompleteId(state.routine, state.exerciseLogs);
+        if (nextId && nextId !== exerciseId) {
+          switchExercise(nextId, get, set);
+        }
+      },
+    };
+  });
 }
 
 export type RoutineSessionActions = Pick<
@@ -483,12 +443,10 @@ export type RoutineSessionActions = Pick<
   | "applyPrevious"
   | "addSet"
   | "deleteSet"
-  | "toggleExerciseComplete"
   | "toggleSetComplete"
   | "skipRestTimer"
   | "adjustRestTimer"
   | "sendNote"
   | "setNoteDraft"
   | "startWorkout"
-  | "stopWorkout"
 >;

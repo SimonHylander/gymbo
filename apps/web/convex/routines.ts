@@ -1,69 +1,82 @@
 import { v } from "convex/values"
 
-import { query } from "./_generated/server"
-import type { Doc } from "./_generated/dataModel"
+import { mutation, query } from "./_generated/server"
+import {
+  applyRoutineTemplateUpdate,
+  getRoutineDetailByExternalId,
+} from "./lib/routineTemplate"
+import {
+  assertNoOngoingWorkout,
+  getRoutineByExternalId,
+} from "./lib/routines"
+import { routineTemplateExerciseValidator } from "./validators"
+
+const nextRoutineValidator = v.union(
+  v.object({
+    externalId: v.string(),
+    name: v.string(),
+  }),
+  v.null()
+)
+
+const exerciseResponseValidator = v.object({
+  id: v.string(),
+  exerciseExternalId: v.string(),
+  name: v.string(),
+  reps: v.optional(v.number()),
+  repRangeMin: v.optional(v.number()),
+  repRangeMax: v.optional(v.number()),
+  restSeconds: v.optional(v.number()),
+  notes: v.optional(v.string()),
+  sets: v.array(
+    v.object({
+      previous: v.string(),
+      weight: v.string(),
+      unit: v.string(),
+      reps: v.string(),
+      status: v.union(v.literal("pending"), v.literal("completed")),
+    })
+  ),
+  history: v.array(
+    v.object({
+      date: v.string(),
+      sets: v.number(),
+      reps: v.string(),
+      weight: v.number(),
+    })
+  ),
+})
 
 export const getByExternalId = query({
   args: { externalId: v.string() },
+  returns: v.union(
+    v.object({
+      id: v.string(),
+      name: v.string(),
+      exercises: v.array(exerciseResponseValidator),
+      nextRoutine: nextRoutineValidator,
+    }),
+    v.null()
+  ),
   handler: async (ctx, { externalId }) => {
-    const routine = await ctx.db
-      .query("routines")
-      .withIndex("by_external_id", (q) => q.eq("externalId", externalId))
-      .unique()
-
-    if (!routine) {
-      return null
-    }
-
-    const routineExercises = await ctx.db
-      .query("routineExercises")
-      .withIndex("by_routine", (q) => q.eq("routineId", routine._id))
-      .collect()
-
-    const exercisesWithHistory = await Promise.all(
-      routineExercises.map(async (routineExercise) => {
-        const exercise = await ctx.db.get(routineExercise.exerciseId)
-        if (!exercise) {
-          throw new Error(
-            `Exercise ${routineExercise.exerciseId} not found for routine exercise ${routineExercise._id}`
-          )
-        }
-
-        return toExerciseResponse(routineExercise, exercise)
-      })
-    )
-
-    return {
-      id: routine.externalId,
-      name: routine.name,
-      exercises: exercisesWithHistory,
-    }
+    return await getRoutineDetailByExternalId(ctx, externalId)
   },
 })
 
-function toExerciseResponse(
-  routineExercise: Doc<"routineExercises">,
-  exercise: Doc<"exercises">
-) {
-  return {
-    id: routineExercise.externalId,
-    name: exercise.name,
-    reps: routineExercise.reps,
-    restSeconds: routineExercise.restSeconds,
-    notes: routineExercise.notes,
-    sets: routineExercise.setTemplates.map((template) => ({
-      previous: template.previous,
-      weight: "",
-      unit: template.unit,
-      reps: "",
-      status: "pending" as const,
-    })),
-    /** Populated from completed workouts once workout queries exist. */
-    history: [] as Array<{
-      date: string
-      sets: number
-      reps: string
-      weight: number
-    }>,
-  }
-}
+export const updateTemplate = mutation({
+  args: {
+    externalId: v.string(),
+    name: v.string(),
+    exercises: v.array(routineTemplateExerciseValidator),
+  },
+  returns: v.null(),
+  handler: async (ctx, args) => {
+    const routine = await getRoutineByExternalId(ctx, args.externalId)
+    await assertNoOngoingWorkout(ctx, routine._id)
+    await applyRoutineTemplateUpdate(ctx, routine, {
+      name: args.name,
+      exercises: args.exercises,
+    })
+    return null
+  },
+})

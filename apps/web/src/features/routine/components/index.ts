@@ -8,6 +8,7 @@ import { RoutineNoteFeed } from "@/features/routine/components/routine-note-feed
 import { RoutineNoteComposer } from "@/features/routine/components/routine-note-composer";
 import { RestTimer } from "@/features/routine/components/exercise-card/rest-timer-bar";
 import { RoutineSummary } from "@/features/routine/components/routine-summary";
+import { RoutineSessionToolbar } from "@/features/routine/components/routine-session-toolbar";
 
 export const Routine = {
   Provider: RoutineProvider,
@@ -21,6 +22,7 @@ export const Routine = {
   NoteComposer: RoutineNoteComposer,
   RestTimer,
   Summary: RoutineSummary,
+  SessionToolbar: RoutineSessionToolbar,
 };
 
 export { RoutineProvider } from "@/features/routine/store/routine-session-context";

@@ -1,4 +1,5 @@
 import { internalMutation } from "./_generated/server"
+import { migrateLegacyRepTargetsInCtx } from "./migrations/repTargetFields"
 import { seedDatabase } from "./seedDatabase"
 
 /**
@@ -10,5 +11,8 @@ import { seedDatabase } from "./seedDatabase"
  */
 export default internalMutation({
   args: {},
-  handler: async (ctx) => seedDatabase(ctx),
+  handler: async (ctx) => {
+    await migrateLegacyRepTargetsInCtx(ctx)
+    return seedDatabase(ctx)
+  },
 })
