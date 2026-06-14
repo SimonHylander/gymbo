@@ -1,5 +1,4 @@
 import { toast } from "sonner";
-import { CodeEditor } from "@/components/chat/code-editor";
 import {
   Console,
   type ConsoleOutput,
@@ -93,10 +92,6 @@ export const codeArtifact = new Artifact<"code", Metadata>({
   content: ({ metadata, setMetadata, ...props }) => {
     return (
       <>
-        <div className="relative min-h-[200px]">
-          <CodeEditor {...props} />
-        </div>
-
         {metadata?.outputs && (
           <Console
             consoleOutputs={metadata.outputs}

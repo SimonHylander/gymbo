@@ -4,6 +4,7 @@ import {
   Scripts,
   createRootRouteWithContext,
 } from "@tanstack/react-router"
+import { Toaster } from "sonner"
 import { ThemeProvider } from "@/components/theme-provider"
 import { TooltipProvider } from "@/components/ui/tooltip"
 
@@ -60,6 +61,14 @@ function RootDocument({ children }: { children: React.ReactNode }) {
           enableSystem
         >
           <TooltipProvider>
+            <Toaster
+              position="top-center"
+              theme="system"
+              toastOptions={{
+                className:
+                  "!bg-card !text-foreground !border-border/50 !shadow-[var(--shadow-float)]",
+              }}
+            />
             {children}
             <Scripts />
           </TooltipProvider>
