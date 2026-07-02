@@ -89,7 +89,7 @@ export const codeArtifact = new Artifact<"code", Metadata>({
       }));
     }
   },
-  content: ({ metadata, setMetadata, ...props }) => {
+  content: ({ metadata, setMetadata }) => {
     return (
       <>
         {metadata?.outputs && (

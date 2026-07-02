@@ -5,6 +5,7 @@ import {
   type MockExerciseSeed,
   type MockRoutineSeed,
 } from "../src/lib/db/data/mock-routine-seed"
+import { getDevUserId } from "./lib/auth"
 
 function makeSetTemplates(previousExamples: string[], unit = "kg") {
   return previousExamples.map((previous) => ({
@@ -59,9 +60,12 @@ async function ensureRoutine(
   routineSeed: MockRoutineSeed,
   exerciseIdsByExternalId: Map<string, Id<"exercises">>
 ) {
+  const userId = getDevUserId()
   const existingRoutine = await ctx.db
     .query("routines")
-    .withIndex("by_external_id", (q) => q.eq("externalId", routineSeed.id))
+    .withIndex("by_user_and_external_id", (q) =>
+      q.eq("userId", userId).eq("externalId", routineSeed.id)
+    )
     .unique()
 
   if (existingRoutine) {
@@ -71,6 +75,7 @@ async function ensureRoutine(
   const routineId = await ctx.db.insert("routines", {
     externalId: routineSeed.id,
     name: routineSeed.name,
+    userId,
   })
 
   for (const [order, exercise] of routineSeed.exercises.entries()) {
@@ -100,10 +105,11 @@ async function ensureRoutine(
 }
 
 async function ensureDefaultProgram(ctx: MutationCtx) {
+  const userId = getDevUserId()
   const existingProgram = await ctx.db
     .query("programs")
-    .withIndex("by_external_id", (q) =>
-      q.eq("externalId", MOCK_DEFAULT_PROGRAM_SEED.externalId)
+    .withIndex("by_user_and_external_id", (q) =>
+      q.eq("userId", userId).eq("externalId", MOCK_DEFAULT_PROGRAM_SEED.externalId)
     )
     .unique()
 
@@ -114,6 +120,7 @@ async function ensureDefaultProgram(ctx: MutationCtx) {
   const programId = await ctx.db.insert("programs", {
     externalId: MOCK_DEFAULT_PROGRAM_SEED.externalId,
     name: MOCK_DEFAULT_PROGRAM_SEED.name,
+    userId,
   })
 
   return { programId, created: true }

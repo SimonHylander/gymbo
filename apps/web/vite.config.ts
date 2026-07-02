@@ -10,14 +10,6 @@ const config = defineConfig({
     environment: "node",
     pool: "forks",
   },
-  server: {
-    proxy: {
-      "/api": {
-        target: "http://localhost:3001",
-        changeOrigin: true,
-      },
-    },
-  },
   plugins: [
     nitro(),
     viteTsConfigPaths({

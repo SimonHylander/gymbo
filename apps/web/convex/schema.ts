@@ -25,7 +25,8 @@ export default defineSchema({
     userId: v.optional(v.string()),
   })
     .index("by_external_id", ["externalId"])
-    .index("by_user", ["userId"]),
+    .index("by_user", ["userId"])
+    .index("by_user_and_external_id", ["userId", "externalId"]),
 
   /** Ordered collection of routines (e.g. a training split). */
   programs: defineTable({
@@ -34,7 +35,8 @@ export default defineSchema({
     userId: v.optional(v.string()),
   })
     .index("by_external_id", ["externalId"])
-    .index("by_user", ["userId"]),
+    .index("by_user", ["userId"])
+    .index("by_user_and_external_id", ["userId", "externalId"]),
 
   /** One routine slot in a program, with explicit order for next-workout navigation. */
   programRoutines: defineTable({

@@ -95,3 +95,20 @@ export const routineTemplateExerciseValidator = v.object({
   notes: v.optional(v.string()),
   setTemplates: v.array(setTemplate),
 })
+
+export const assistantRoutineExerciseValidator = v.object({
+  externalId: v.string(),
+  exerciseExternalId: v.string(),
+  name: v.string(),
+  reps: v.optional(v.number()),
+  repRangeMin: v.optional(v.number()),
+  repRangeMax: v.optional(v.number()),
+  restSeconds: v.optional(v.number()),
+  notes: v.optional(v.string()),
+})
+
+export const assistantRoutineValidator = v.object({
+  externalId: v.string(),
+  name: v.string(),
+  exercises: v.array(assistantRoutineExerciseValidator),
+})

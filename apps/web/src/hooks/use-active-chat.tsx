@@ -129,7 +129,7 @@ export function ActiveChatProvider({ children }: { children: ReactNode }) {
       );
     },
     transport: new DefaultChatTransport({
-      api: `${API_BASE}/api/chat`,
+      api: "/api/chat",
       fetch: fetchWithErrorHandlers,
       prepareSendMessagesRequest(request) {
         const lastMessage = request.messages.at(-1);
