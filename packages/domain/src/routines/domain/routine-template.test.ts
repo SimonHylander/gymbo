@@ -47,7 +47,7 @@ describe("routine-template", () => {
 
   it("adds set to exercise", () => {
     const draft = detailToDraft(sampleDetail);
-    const updated = addSetToExercise(draft.exercises[0]!);
+    const updated = addSetToExercise(draft.exercises[0]);
     expect(updated.setTemplates).toHaveLength(2);
   });
 });

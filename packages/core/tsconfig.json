@@ -12,6 +12,6 @@
       "@workspace/core/*": ["./src/*"]
     }
   },
-  "include": ["src", "vitest.config.ts", "eslint.config.ts"],
+  "include": ["src", "use-cases", "vitest.config.ts"],
   "exclude": ["node_modules", "dist"]
 }

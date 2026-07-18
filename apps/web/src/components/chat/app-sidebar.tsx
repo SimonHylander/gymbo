@@ -13,8 +13,20 @@ import { useSWRConfig } from "swr";
 import { unstable_serialize } from "swr/infinite";
 import { Link, useNavigate } from "@tanstack/react-router";
 import {
-  getChatHistoryPaginationKey,
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "../ui/alert-dialog";
+import { Tooltip, TooltipContent, TooltipTrigger } from "../ui/tooltip";
+import type { MockUser } from "@/lib/mock-auth";
+import {
   SidebarHistory,
+  getChatHistoryPaginationKey,
 } from "@/components/chat/sidebar-history";
 import { SidebarUserNav } from "@/components/chat/sidebar-user-nav";
 import {
@@ -32,18 +44,6 @@ import {
   useSidebar,
 } from "@/components/ui/sidebar";
 import { API_BASE } from "@/lib/api-base";
-import type { MockUser } from "@/lib/mock-auth";
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from "../ui/alert-dialog";
-import { Tooltip, TooltipContent, TooltipTrigger } from "../ui/tooltip";
 
 export function AppSidebar({ user }: { user: MockUser | undefined }) {
   const navigate = useNavigate();

@@ -1,4 +1,5 @@
 import { toast } from "sonner";
+import { getSuggestions } from "../actions";
 import { Artifact } from "@/components/chat/create-artifact";
 import { DiffView } from "@/components/chat/diffview";
 import { DocumentSkeleton } from "@/components/chat/document-skeleton";
@@ -11,10 +12,9 @@ import {
   UndoIcon,
 } from "@/components/chat/icons";
 import { Editor } from "@/components/chat/text-editor";
-import { getSuggestions } from "../actions";
 
 type TextArtifactMetadata = {
-  suggestions: any[];
+  suggestions: Array<any>;
 };
 
 export const textArtifact = new Artifact<"text", TextArtifactMetadata>({

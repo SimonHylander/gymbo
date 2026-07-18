@@ -16,7 +16,7 @@
   },
   "devDependencies": {
     "@effect/vitest": "4.0.0-beta.83",
-    "@tanstack/eslint-config": "^0.3.0",
+    "@workspace/config": "workspace:*",
     "ai": "6.0.116",
     "effect": "4.0.0-beta.83",
     "eslint": "^9.39.2",

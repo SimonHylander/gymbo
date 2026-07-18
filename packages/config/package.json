@@ -1,0 +1,17 @@
+{
+  "name": "@workspace/config",
+  "version": "0.0.0",
+  "type": "module",
+  "private": true,
+  "exports": {
+    "./eslint": "./eslint/base.js",
+    "./eslint-native": "./eslint/native.js"
+  },
+  "dependencies": {
+    "@tanstack/eslint-config": "^0.3.0",
+    "eslint-config-expo": "~57.0.0"
+  },
+  "peerDependencies": {
+    "eslint": ">=9"
+  }
+}

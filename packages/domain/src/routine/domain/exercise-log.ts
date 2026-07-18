@@ -18,7 +18,7 @@ export function parsePrevious(
   };
 }
 
-export function cloneSets(exercise: Exercise): SetEntry[] {
+export function cloneSets(exercise: Exercise): Array<SetEntry> {
   return exercise.sets.map((set) => ({ ...set }));
 }
 
@@ -30,7 +30,7 @@ export function createInitialLog(exercise: Exercise): ExerciseLogState {
 }
 
 export function createInitialLogs(
-  exercises: Exercise[]
+  exercises: Array<Exercise>
 ): Record<string, ExerciseLogState> {
   return Object.fromEntries(
     exercises.map((exercise) => [exercise.id, createInitialLog(exercise)])
@@ -99,7 +99,7 @@ export function canCompleteSet(set: SetEntry): boolean {
   return Boolean(set.weight || set.reps);
 }
 
-function markSetsCompleted(sets: SetEntry[]): SetEntry[] {
+function markSetsCompleted(sets: Array<SetEntry>): Array<SetEntry> {
   return sets.map((set) =>
     set.weight || set.reps ? { ...set, status: "completed" as const } : set
   );

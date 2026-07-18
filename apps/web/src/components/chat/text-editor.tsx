@@ -3,11 +3,14 @@
 import { exampleSetup } from "prosemirror-example-setup";
 import { inputRules } from "prosemirror-inputrules";
 import { EditorState } from "prosemirror-state";
-import { type Decoration, DecorationSet, EditorView } from "prosemirror-view";
+import {  DecorationSet, EditorView } from "prosemirror-view";
 import { memo, useCallback, useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 
+import { SuggestionDialog } from "./suggestion";
+import type {Decoration} from "prosemirror-view";
 import type { Suggestion } from "@/lib/db/schema";
+import type {UISuggestion} from "@/lib/editor/suggestions";
 import {
   documentSchema,
   handleTransaction,
@@ -19,12 +22,11 @@ import {
   createDecorations,
 } from "@/lib/editor/functions";
 import {
+  
   projectWithPositions,
   suggestionsPlugin,
-  suggestionsPluginKey,
-  type UISuggestion,
+  suggestionsPluginKey
 } from "@/lib/editor/suggestions";
-import { SuggestionDialog } from "./suggestion";
 
 type EditorProps = {
   content: string;
@@ -32,7 +34,7 @@ type EditorProps = {
   status: "streaming" | "idle";
   isCurrentVersion: boolean;
   currentVersionIndex: number;
-  suggestions: Suggestion[];
+  suggestions: Array<Suggestion>;
   onSuggestionSelect?: (suggestion: UISuggestion | null) => void;
   onSuggestionApply?: () => void;
   activeSuggestion?: UISuggestion | null;
@@ -49,7 +51,7 @@ function PureEditor({
   const [activeSuggestion, setActiveSuggestion] = useState<UISuggestion | null>(
     null
   );
-  const suggestionsRef = useRef<UISuggestion[]>([]);
+  const suggestionsRef = useRef<Array<UISuggestion>>([]);
 
   useEffect(() => {
     if (containerRef.current && !editorRef.current) {

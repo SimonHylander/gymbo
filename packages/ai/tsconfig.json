@@ -12,6 +12,6 @@
       "@workspace/ai/*": ["./src/*"]
     }
   },
-  "include": ["src", "vitest.config.ts", "eslint.config.ts"],
+  "include": ["src", "vitest.config.ts"],
   "exclude": ["node_modules", "dist"]
 }

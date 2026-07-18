@@ -28,7 +28,7 @@ describe("routineDetailStats", () => {
 });
 
 describe("routineExerciseNamePreview", () => {
-  const names = (items: string[]) => items.map((name) => ({ name }));
+  const names = (items: Array<string>) => items.map((name) => ({ name }));
 
   it("returns empty preview for no exercises", () => {
     expect(routineExerciseNamePreview([])).toEqual({

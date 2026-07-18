@@ -1,7 +1,7 @@
 import { ConvexError } from "convex/values";
 
-import type { RoutineTemplateDraft } from "@workspace/domain/routines/domain/types";
 import { draftToUpdateArgs } from "@workspace/domain/routines/domain/map-routine-template";
+import type { RoutineTemplateDraft } from "@workspace/domain/routines/domain/types";
 
 export type SaveRoutineTemplateFn = (args: ReturnType<typeof draftToUpdateArgs>) => Promise<null>;
 

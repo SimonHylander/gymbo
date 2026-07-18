@@ -1,20 +1,21 @@
-import type { Id } from "./_generated/dataModel"
-import type { MutationCtx } from "./_generated/server"
 import {
-  MOCK_DEFAULT_PROGRAM_SEED,
-  type MockExerciseSeed,
-  type MockRoutineSeed,
+  MOCK_DEFAULT_PROGRAM_SEED
+  
+  
 } from "./data/mockRoutineSeed"
 import { DEV_USER_ID } from "./lib/devIdentity"
+import type {MockExerciseSeed, MockRoutineSeed} from "./data/mockRoutineSeed";
+import type { Id } from "./_generated/dataModel"
+import type { MutationCtx } from "./_generated/server"
 
-function makeSetTemplates(previousExamples: string[], unit = "kg") {
+function makeSetTemplates(previousExamples: Array<string>, unit = "kg") {
   return previousExamples.map((previous) => ({
     previous,
     unit,
   }))
 }
 
-function collectExerciseSeeds(routines: MockRoutineSeed[]): MockExerciseSeed[] {
+function collectExerciseSeeds(routines: Array<MockRoutineSeed>): Array<MockExerciseSeed> {
   const byExternalId = new Map<string, MockExerciseSeed>()
   for (const routine of routines) {
     for (const exercise of routine.exercises) {
@@ -26,7 +27,7 @@ function collectExerciseSeeds(routines: MockRoutineSeed[]): MockExerciseSeed[] {
 
 async function ensureDefaultExercises(
   ctx: MutationCtx,
-  exerciseSeeds: MockExerciseSeed[]
+  exerciseSeeds: Array<MockExerciseSeed>
 ) {
   const exerciseIdsByExternalId = new Map<string, Id<"exercises">>()
   let created = 0

@@ -2,12 +2,13 @@
 
 import { useReducedMotion } from "framer-motion";
 import {
+  
   useCallback,
   useEffect,
   useLayoutEffect,
-  useRef,
-  type KeyboardEvent,
+  useRef
 } from "react";
+import type {KeyboardEvent} from "react";
 
 import { cn } from "@/lib/utils";
 
@@ -20,7 +21,7 @@ const PROGRAMMATIC_SCROLL_CLEAR_MS = 120;
 const INITIAL_SCROLL_GUARD_MS = 300;
 
 export type RestDurationWheelProps = {
-  options: readonly number[];
+  options: ReadonlyArray<number>;
   value: number;
   onValueChange: (seconds: number) => void;
   formatLabel: (seconds: number) => string;
@@ -135,7 +136,7 @@ export function RestDurationWheel({
 
     const index = Math.round(container.scrollTop / ROW_HEIGHT_PX);
     const clampedIndex = Math.max(0, Math.min(index, options.length - 1));
-    const selected = options[clampedIndex]!;
+    const selected = options[clampedIndex];
     const targetTop = clampedIndex * ROW_HEIGHT_PX;
 
     if (Math.abs(container.scrollTop - targetTop) > 1) {

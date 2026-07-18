@@ -1,4 +1,4 @@
-import { createIntegrationError, IntegrationErrorCode } from "../errors"
+import { IntegrationErrorCode, createIntegrationError } from "../errors"
 import { defineInboundAdapter } from "../inbound-adapter"
 import { integrationErr, integrationOk } from "../result"
 import { createIntegrationId } from "../types"

@@ -12,20 +12,20 @@ export type MockExerciseSeed = {
   repRangeMax?: number
   restSeconds?: number
   notes?: string
-  previousExamples: string[]
+  previousExamples: Array<string>
   unit?: string
 }
 
 export type MockRoutineSeed = {
   id: string
   name: string
-  exercises: MockExerciseSeed[]
+  exercises: Array<MockExerciseSeed>
 }
 
 export type MockProgramSeed = {
   externalId: string
   name: string
-  routines: MockRoutineSeed[]
+  routines: Array<MockRoutineSeed>
 }
 
 export const MOCK_ROUTINE_SEED: MockRoutineSeed = {

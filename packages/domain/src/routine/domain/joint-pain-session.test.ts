@@ -1,18 +1,19 @@
 import { describe, expect, it } from "vitest";
 
 import {
+  
   createJointPainSessionState,
   openJointPainForExercise,
   openJointPainWizard,
   prefillSavedLevels,
   reduceJointPainSession,
   selectJointPainViewModel,
-  shouldPromptJointPainAfterExerciseComplete,
-  type JointPainSessionConfig,
+  shouldPromptJointPainAfterExerciseComplete
 } from "./joint-pain-session";
+import type {JointPainSessionConfig} from "./joint-pain-session";
 import type { Exercise } from "./types";
 
-const exercises: Exercise[] = [
+const exercises: Array<Exercise> = [
   {
     id: "ex-1",
     name: "Squat",

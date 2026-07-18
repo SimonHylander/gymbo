@@ -20,8 +20,8 @@ export type IntegrationContext = {
   metadata?: Readonly<Record<string, unknown>>
 }
 
-export type IntegrationResult<T, E = IntegrationError> =
+export type IntegrationResult<T, TError = IntegrationError> =
   | { ok: true; value: T }
-  | { ok: false; error: E }
+  | { ok: false; error: TError }
 
 export type IntegrationDirection = "inbound" | "outbound"

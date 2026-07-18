@@ -1,8 +1,4 @@
 "use client";
-import type { UseChatHelpers } from "@ai-sdk/react";
-import type { Vote } from "@/lib/db/schema";
-import type { ChatMessage } from "@/lib/types";
-import { cn, sanitizeText } from "@/lib/utils";
 import { MessageContent, MessageResponse } from "../ai-elements/message";
 import { Shimmer } from "../ai-elements/shimmer";
 import {
@@ -20,6 +16,10 @@ import { MessageActions } from "./message-actions";
 import { MessageReasoning } from "./message-reasoning";
 import { PreviewAttachment } from "./preview-attachment";
 import { Weather } from "./weather";
+import type { ChatMessage } from "@/lib/types";
+import type { Vote } from "@/lib/db/schema";
+import type { UseChatHelpers } from "@ai-sdk/react";
+import { cn, sanitizeText } from "@/lib/utils";
 
 const PurePreviewMessage = ({
   addToolApprovalResponse,

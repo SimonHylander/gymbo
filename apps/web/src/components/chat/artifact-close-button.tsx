@@ -1,6 +1,6 @@
 import { memo } from "react";
-import { initialArtifactData, useArtifact } from "@/hooks/use-artifact";
 import { CrossIcon } from "./icons";
+import { initialArtifactData, useArtifact } from "@/hooks/use-artifact";
 
 function PureArtifactCloseButton() {
   const { setArtifact } = useArtifact();

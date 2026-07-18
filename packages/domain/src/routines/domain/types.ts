@@ -9,12 +9,12 @@ export type RoutineSummary = {
 export type RoutineListProgram = {
   externalId: string;
   name: string;
-  routines: RoutineSummary[];
+  routines: Array<RoutineSummary>;
 };
 
 export type RoutinesListData = {
-  programs: RoutineListProgram[];
-  unassignedRoutines: RoutineSummary[];
+  programs: Array<RoutineListProgram>;
+  unassignedRoutines: Array<RoutineSummary>;
 };
 
 export type SetTemplate = {
@@ -33,14 +33,14 @@ export type RoutineExerciseDraft = {
   repRangeMax?: number;
   restSeconds?: number;
   notes?: string;
-  setTemplates: SetTemplate[];
+  setTemplates: Array<SetTemplate>;
 };
 
 /** Full routine template edit draft. */
 export type RoutineTemplateDraft = {
   externalId: string;
   name: string;
-  exercises: RoutineExerciseDraft[];
+  exercises: Array<RoutineExerciseDraft>;
 };
 
 /** Detail response shape from routines.getByExternalId (subset used on list page). */
@@ -65,7 +65,7 @@ export type RoutineDetailExercise = {
 export type RoutineDetail = {
   id: string;
   name: string;
-  exercises: RoutineDetailExercise[];
+  exercises: Array<RoutineDetailExercise>;
   nextRoutine: { externalId: string; name: string } | null;
 };
 
@@ -86,7 +86,7 @@ export type UpdateTemplateArgs = {
     repRangeMax?: number;
     restSeconds?: number;
     notes?: string;
-    setTemplates: SetTemplate[];
+    setTemplates: Array<SetTemplate>;
   }>;
 };
 

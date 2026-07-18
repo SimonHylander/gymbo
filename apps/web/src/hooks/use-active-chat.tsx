@@ -1,6 +1,5 @@
 "use client";
 
-import type { UseChatHelpers } from "@ai-sdk/react";
 import { useChat } from "@ai-sdk/react";
 import {
   useNavigate,
@@ -9,33 +8,35 @@ import {
 } from "@tanstack/react-router";
 import { DefaultChatTransport } from "ai";
 import {
+  
+  
+  
   createContext,
-  type Dispatch,
-  type ReactNode,
-  type SetStateAction,
   useContext,
   useEffect,
   useMemo,
   useRef,
-  useState,
+  useState
 } from "react";
 import useSWR, { useSWRConfig } from "swr";
 import { unstable_serialize } from "swr/infinite";
-import { useDataStream } from "@/components/chat/data-stream-provider";
-import { getChatHistoryPaginationKey } from "@/components/chat/sidebar-history";
-import { toast } from "@/components/chat/toast";
+import type {Dispatch, ReactNode, SetStateAction} from "react";
+import type { UseChatHelpers } from "@ai-sdk/react";
 import type { VisibilityType } from "@/components/chat/visibility-selector";
+import type { Vote } from "@/lib/db/schema";
+import type { ChatMessage } from "@/lib/types";
+import { useDataStream } from "@/components/chat/data-stream-provider";
+import { toast } from "@/components/chat/toast";
 import { useAutoResume } from "@/hooks/use-auto-resume";
 import { DEFAULT_CHAT_MODEL } from "@/lib/ai/models";
 import { API_BASE } from "@/lib/api-base";
-import type { Vote } from "@/lib/db/schema";
 import { ChatbotError } from "@/lib/errors";
-import type { ChatMessage } from "@/lib/types";
-import { fetcher, fetchWithErrorHandlers, generateUUID } from "@/lib/utils";
+import { getChatHistoryPaginationKey } from "@/components/chat/sidebar-history";
+import { fetchWithErrorHandlers, fetcher, generateUUID } from "@/lib/utils";
 
 type ActiveChatContextValue = {
   chatId: string;
-  messages: ChatMessage[];
+  messages: Array<ChatMessage>;
   setMessages: UseChatHelpers<ChatMessage>["setMessages"];
   sendMessage: UseChatHelpers<ChatMessage>["sendMessage"];
   status: UseChatHelpers<ChatMessage>["status"];
@@ -47,7 +48,7 @@ type ActiveChatContextValue = {
   visibilityType: VisibilityType;
   isReadonly: boolean;
   isLoading: boolean;
-  votes: Vote[] | undefined;
+  votes: Array<Vote> | undefined;
   currentModelId: string;
   setCurrentModelId: (id: string) => void;
   showCreditCardAlert: boolean;
@@ -60,7 +61,7 @@ export function ActiveChatProvider({ children }: { children: ReactNode }) {
   const navigate = useNavigate();
   const pathname = useRouterState({ select: (state) => state.location.pathname });
   const search = useRouterState({ select: (state) => state.location.searchStr });
-  const params = useParams({ strict: false }) as { id?: string };
+  const params = useParams({ strict: false });
   const { setDataStream } = useDataStream();
   const { mutate } = useSWRConfig();
 
@@ -96,7 +97,7 @@ export function ActiveChatProvider({ children }: { children: ReactNode }) {
     { revalidateOnFocus: false }
   );
 
-  const initialMessages: ChatMessage[] = isNewChat
+  const initialMessages: Array<ChatMessage> = isNewChat
     ? []
     : (chatData?.messages ?? []);
   const visibility: VisibilityType = isNewChat
@@ -242,7 +243,7 @@ export function ActiveChatProvider({ children }: { children: ReactNode }) {
 
   const isReadonly = isNewChat ? false : (chatData?.isReadonly ?? false);
 
-  const { data: votes } = useSWR<Vote[]>(
+  const { data: votes } = useSWR<Array<Vote>>(
     !isReadonly && messages.length >= 2
       ? `${API_BASE}/api/vote?chatId=${chatId}`
       : null,

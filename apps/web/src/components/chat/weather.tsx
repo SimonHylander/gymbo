@@ -104,8 +104,8 @@ type WeatherAtLocation = {
     temperature_2m: string;
   };
   hourly: {
-    time: string[];
-    temperature_2m: number[];
+    time: Array<string>;
+    temperature_2m: Array<number>;
   };
   daily_units: {
     time: string;
@@ -113,16 +113,16 @@ type WeatherAtLocation = {
     sunset: string;
   };
   daily: {
-    time: string[];
-    sunrise: string[];
-    sunset: string[];
+    time: Array<string>;
+    sunrise: Array<string>;
+    sunset: Array<string>;
   };
 };
 
 const SAMPLE = {
   latitude: 37.763_283,
   longitude: -122.412_86,
-  generationtime_ms: 0.027_894_973_754_882_812,
+  generationtime_ms: 0.02789497375488281,
   utc_offset_seconds: 0,
   timezone: "GMT",
   timezone_abbreviation: "GMT",

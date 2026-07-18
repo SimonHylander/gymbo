@@ -1,8 +1,8 @@
 import { Trash2Icon } from "lucide-react";
 
+import type { SetTemplateRowViewProps } from "@/features/routines/ui/types";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import type { SetTemplateRowViewProps } from "@/features/routines/ui/types";
 
 export function SetTemplateRowView({
   setNumber,

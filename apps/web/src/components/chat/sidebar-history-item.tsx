@@ -1,7 +1,5 @@
 import { Link } from "@tanstack/react-router";
 import { memo } from "react";
-import { useChatVisibility } from "@/hooks/use-chat-visibility";
-import type { Chat } from "@/lib/db/schema";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -25,6 +23,8 @@ import {
   ShareIcon,
   TrashIcon,
 } from "./icons";
+import type { Chat } from "@/lib/db/schema";
+import { useChatVisibility } from "@/hooks/use-chat-visibility";
 
 const PureChatItem = ({
   chat,

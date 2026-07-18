@@ -1,30 +1,32 @@
 "use client";
-import type { UseChatHelpers } from "@ai-sdk/react";
 import cx from "classnames";
 import { motion, useMotionValue, useTransform } from "framer-motion";
 import { WrenchIcon, XIcon } from "lucide-react";
 import { nanoid } from "nanoid";
 import {
-  type Dispatch,
+  
+  
+  
+  
   memo,
-  type RefObject,
-  type ReactNode,
-  type SetStateAction,
   useEffect,
   useRef,
-  useState,
+  useState
 } from "react";
 import { useOnClickOutside } from "usehooks-ts";
+import {  artifactDefinitions } from "./artifact";
+import { ArrowUpIcon, StopIcon, SummarizeIcon } from "./icons";
+import type {Dispatch, ReactNode, RefObject, SetStateAction} from "react";
+import type {ArtifactKind} from "./artifact";
+import type { ChatMessage } from "@/lib/types";
+import type { ArtifactToolbarItem } from "./create-artifact";
+import type { UseChatHelpers } from "@ai-sdk/react";
 import {
   Tooltip,
   TooltipContent,
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
-import type { ChatMessage } from "@/lib/types";
-import { type ArtifactKind, artifactDefinitions } from "./artifact";
-import type { ArtifactToolbarItem } from "./create-artifact";
-import { ArrowUpIcon, StopIcon, SummarizeIcon } from "./icons";
 
 type ToolProps = {
   description: string;
@@ -252,7 +254,7 @@ export const Tools = ({
   setSelectedTool: Dispatch<SetStateAction<string | null>>;
   sendMessage: UseChatHelpers<ChatMessage>["sendMessage"];
   isAnimating: boolean;
-  tools: ArtifactToolbarItem[];
+  tools: Array<ArtifactToolbarItem>;
 }) => {
   return (
     <motion.div

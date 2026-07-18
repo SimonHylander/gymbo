@@ -1,6 +1,6 @@
+import { integrationDuplicateRegistration, integrationNotFound } from "./result"
 import type { InboundAdapter } from "./inbound-adapter"
 import type { OutboundAdapter } from "./outbound-adapter"
-import { integrationDuplicateRegistration, integrationNotFound } from "./result"
 import type {
   IntegrationDirection,
   IntegrationId,

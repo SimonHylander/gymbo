@@ -1,12 +1,12 @@
 "use client";
 
+import { ArrowDownIcon, DownloadIcon } from "lucide-react";
+import { useCallback } from "react";
+import { StickToBottom, useStickToBottomContext } from "use-stick-to-bottom";
 import type { ComponentProps } from "react";
 
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
-import { ArrowDownIcon, DownloadIcon } from "lucide-react";
-import { useCallback } from "react";
-import { StickToBottom, useStickToBottomContext } from "use-stick-to-bottom";
 
 export type ConversationProps = ComponentProps<typeof StickToBottom>;
 
@@ -109,7 +109,7 @@ export type ConversationDownloadProps = Omit<
   ComponentProps<typeof Button>,
   "onClick"
 > & {
-  messages: ConversationMessage[];
+  messages: Array<ConversationMessage>;
   filename?: string;
   formatMessage?: (message: ConversationMessage, index: number) => string;
 };
@@ -121,7 +121,7 @@ const defaultFormatMessage = (message: ConversationMessage): string => {
 };
 
 export const messagesToMarkdown = (
-  messages: ConversationMessage[],
+  messages: Array<ConversationMessage>,
   formatMessage: (
     message: ConversationMessage,
     index: number

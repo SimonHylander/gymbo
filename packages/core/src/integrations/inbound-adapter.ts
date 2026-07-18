@@ -4,13 +4,13 @@ export interface InboundAdapter<TExternal, TInternal> {
   readonly id: IntegrationId
 
   /** Validate and normalize untrusted input (webhook body, import row, etc.). */
-  parse(input: unknown, ctx: IntegrationContext): IntegrationResult<TExternal>
+  parse: (input: unknown, ctx: IntegrationContext) => IntegrationResult<TExternal>
 
   /** Map a validated external shape to a Gymbo-internal shape. */
-  toInternal(
+  toInternal: (
     external: TExternal,
     ctx: IntegrationContext,
-  ): IntegrationResult<TInternal>
+  ) => IntegrationResult<TInternal>
 }
 
 export type InboundAdapterDefinition<TExternal, TInternal> = InboundAdapter<

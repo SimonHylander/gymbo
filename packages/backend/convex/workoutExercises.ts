@@ -1,10 +1,12 @@
 import { ConvexError, v } from "convex/values"
 
-import type { Doc, Id } from "./_generated/dataModel"
-import { mutation, type MutationCtx } from "./_generated/server"
+import {  mutation } from "./_generated/server"
 import { parsePrevious } from "./lib/parsePrevious"
-import { requireUser, type UserId } from "./lib/principal"
+import {  requireUser } from "./lib/principal"
 import { exerciseLog } from "./validators"
+import type {UserId} from "./lib/principal";
+import type {MutationCtx} from "./_generated/server";
+import type { Doc, Id } from "./_generated/dataModel"
 
 async function getOngoingWorkoutExercise(
   ctx: MutationCtx,

@@ -1,6 +1,22 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+
+
+import { Artifact } from "./artifact";
+import { ChatHeader } from "./chat-header";
+import { DataStreamHandler } from "./data-stream-handler";
+import { submitEditedMessage } from "./message-editor";
+import { Messages } from "./messages";
+import { MultimodalInput } from "./multimodal-input";
+import type { Attachment, ChatMessage } from "@/lib/types";
+import { cn } from "@/lib/utils";
+import {
+  initialArtifactData,
+  useArtifact,
+  useArtifactSelector,
+} from "@/hooks/use-artifact";
+import { useActiveChat } from "@/hooks/use-active-chat";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -11,22 +27,6 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import { useActiveChat } from "@/hooks/use-active-chat";
-
-import {
-  initialArtifactData,
-  useArtifact,
-  useArtifactSelector,
-} from "@/hooks/use-artifact";
-
-import type { Attachment, ChatMessage } from "@/lib/types";
-import { cn } from "@/lib/utils";
-import { Artifact } from "./artifact";
-import { ChatHeader } from "./chat-header";
-import { DataStreamHandler } from "./data-stream-handler";
-import { submitEditedMessage } from "./message-editor";
-import { Messages } from "./messages";
-import { MultimodalInput } from "./multimodal-input";
 
 export function ChatShell() {
   const {
@@ -53,7 +53,7 @@ export function ChatShell() {
   const [editingMessage, setEditingMessage] = useState<ChatMessage | null>(
     null
   );
-  const [attachments, setAttachments] = useState<Attachment[]>([]);
+  const [attachments, setAttachments] = useState<Array<Attachment>>([]);
   const isArtifactVisible = useArtifactSelector((state) => state.isVisible);
   const { setArtifact } = useArtifact();
 

@@ -2,7 +2,7 @@ export type ChatStarterAction =
   | { kind: "prompt"; label: string; message: string }
   | { kind: "navigate"; label: string; to: "/routines" };
 
-export const chatStarterActions: ChatStarterAction[] = [
+export const chatStarterActions: Array<ChatStarterAction> = [
   { kind: "navigate", label: "Start a workout", to: "/routines" },
   {
     kind: "prompt",

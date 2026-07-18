@@ -1,12 +1,12 @@
 "use client";
 
-import type { UseChatHelpers } from "@ai-sdk/react";
 import { useNavigate } from "@tanstack/react-router";
 import { motion } from "framer-motion";
 import { memo } from "react";
-import type { ChatMessage } from "@/lib/types";
 import { Suggestion } from "../ai-elements/suggestion";
 import { chatStarterActions } from "./starter-actions";
+import type { ChatMessage } from "@/lib/types";
+import type { UseChatHelpers } from "@ai-sdk/react";
 import type { VisibilityType } from "./visibility-selector";
 
 type SuggestedActionsProps = {

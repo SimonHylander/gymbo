@@ -1,39 +1,44 @@
 import { useMutation } from "convex/react";
 import { useNavigate, useRouter } from "@tanstack/react-router";
 import {
+  
+  
   createContext,
   use,
   useCallback,
   useEffect,
   useMemo,
-  useRef,
-  type ReactNode,
-  type RefObject,
+  useRef
 } from "react";
-import { useStore, type StoreApi } from "zustand";
+import {  useStore } from "zustand";
 import { useShallow } from "zustand/react/shallow";
 
 import { api } from "@workspace/backend/convex/_generated/api";
 import {
-  createWorkoutSync,
-  type WorkoutMutations,
+  
+  createWorkoutSync
 } from "@workspace/domain/routine/sync/workout-mutations";
-import { WorkoutJointPainFlow } from "@/features/routine/components/workout-joint-pain-flow";
+import {
+  
+  
+  createWorkoutLifecycle
+} from "@workspace/domain/routine/domain/workout-lifecycle";
+import {
+  
+  
+  
+  createRoutineSessionStore
+} from "@workspace/domain/routine/store/create-routine-session-store";
+import type {NextRoutine, WorkoutLifecycleContextValue} from "@workspace/domain/routine/domain/workout-lifecycle";
+import type {RoutineSessionActions, RoutineSessionStore, WorkoutSyncRef} from "@workspace/domain/routine/store/create-routine-session-store";
+import type {WorkoutMutations} from "@workspace/domain/routine/sync/workout-mutations";
+import type {StoreApi} from "zustand";
+import type {ReactNode, RefObject} from "react";
 import type {
   Routine,
   WorkoutSessionSnapshot,
 } from "@workspace/domain/routine/domain/types";
-import {
-  createWorkoutLifecycle,
-  type NextRoutine,
-  type WorkoutLifecycleContextValue,
-} from "@workspace/domain/routine/domain/workout-lifecycle";
-import {
-  createRoutineSessionStore,
-  type RoutineSessionActions,
-  type RoutineSessionStore,
-  type WorkoutSyncRef,
-} from "@workspace/domain/routine/store/create-routine-session-store";
+import { WorkoutJointPainFlow } from "@/features/routine/components/workout-joint-pain-flow";
 import { toast } from "@/components/chat/toast";
 
 const RoutineStoreContext =

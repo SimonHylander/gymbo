@@ -26,7 +26,7 @@ const PureSpreadsheetEditor = ({ content, saveContent }: SheetEditorProps) => {
     if (!content) {
       return new Array(MIN_ROWS).fill(new Array(MIN_COLS).fill(""));
     }
-    const result = parse<string[]>(content, { skipEmptyLines: true });
+    const result = parse<Array<string>>(content, { skipEmptyLines: true });
 
     const paddedData = result.data.map((row) => {
       const paddedRow = [...row];
@@ -92,11 +92,11 @@ const PureSpreadsheetEditor = ({ content, saveContent }: SheetEditorProps) => {
     setLocalRows(initialRows);
   }, [initialRows]);
 
-  const generateCsv = (data: string[][]) => {
+  const generateCsv = (data: Array<Array<string>>) => {
     return unparse(data);
   };
 
-  const handleRowsChange = (newRows: Record<string, string | number>[]) => {
+  const handleRowsChange = (newRows: Array<Record<string, string | number>>) => {
     setLocalRows(newRows);
 
     const updatedData = newRows.map((row) => {

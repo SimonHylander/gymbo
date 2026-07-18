@@ -4,16 +4,15 @@ import { useMemo } from "react";
 import { api } from "@workspace/backend/convex/_generated/api";
 import type { Id } from "@workspace/backend/convex/_generated/dataModel";
 import type { WorkoutMutations } from "@workspace/domain/routine/sync/workout-mutations";
-import { JointPainCheckInDialog } from "@/features/routine/components/joint-pain-check-in-dialog";
-import type { JointPainLevel } from "@workspace/domain/routine/domain/joint-pain";
 import type { Exercise } from "@workspace/domain/routine/domain/types";
+import { JointPainCheckInDialog } from "@/features/routine/components/joint-pain-check-in-dialog";
 import { useJointPainSession } from "@/features/routine/store/use-joint-pain-session";
 
 type WorkoutJointPainFlowProps = {
   open: boolean;
   targetExerciseId: string | null;
   workoutId: Id<"workouts"> | null;
-  exercises: Exercise[];
+  exercises: Array<Exercise>;
   workoutExerciseIds: Record<string, Id<"workoutExercises">>;
   recordJointPain: WorkoutMutations["recordJointPain"];
   onComplete: () => Promise<void>;
@@ -40,8 +39,8 @@ export function WorkoutJointPainFlow({
   const existingFeedback = useMemo(
     () =>
       existingFeedbackRaw?.map((entry) => ({
-        workoutExerciseId: entry.workoutExerciseId as string,
-        jointPainLevel: entry.jointPainLevel as JointPainLevel,
+        workoutExerciseId: entry.workoutExerciseId,
+        jointPainLevel: entry.jointPainLevel,
       })),
     [existingFeedbackRaw]
   );

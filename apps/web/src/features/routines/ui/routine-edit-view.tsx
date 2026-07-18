@@ -1,8 +1,8 @@
+import type { RoutineEditViewProps } from "@/features/routines/ui/types";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { ExercisePickerView } from "@/features/routines/ui/exercise-picker-view";
 import { RoutineEditExerciseView } from "@/features/routines/ui/routine-edit-exercise-view";
-import type { RoutineEditViewProps } from "@/features/routines/ui/types";
 
 export function RoutineEditView({
   draft,

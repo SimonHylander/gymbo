@@ -9,7 +9,8 @@ import {
   Trash2Icon,
   XIcon,
 } from "lucide-react";
-import { type ReactNode, useEffect, useRef } from "react";
+import {  useEffect, useRef } from "react";
+import type {ReactNode} from "react";
 import { cn } from "@/lib/utils";
 
 export type SlashCommand = {
@@ -20,7 +21,7 @@ export type SlashCommand = {
   shortcut?: string;
 };
 
-export const slashCommands: SlashCommand[] = [
+export const slashCommands: Array<SlashCommand> = [
   {
     name: "new",
     description: "Start a new chat",

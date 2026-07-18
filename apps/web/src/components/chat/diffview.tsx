@@ -1,9 +1,9 @@
 import OrderedMap from "orderedmap";
 import {
   DOMParser,
-  type MarkSpec,
-  type Node as ProsemirrorNode,
-  Schema,
+  
+  
+  Schema
 } from "prosemirror-model";
 import { schema } from "prosemirror-schema-basic";
 import { addListNodes } from "prosemirror-schema-list";
@@ -11,6 +11,7 @@ import { EditorState } from "prosemirror-state";
 import { EditorView } from "prosemirror-view";
 import { useEffect, useRef } from "react";
 import { renderToString } from "react-dom/server";
+import type { Node as ProsemirrorNode } from "prosemirror-model";
 
 import { MessageResponse } from "@/components/ai-elements/message";
 import { DiffType, diffEditor } from "@/lib/editor/diff";
@@ -38,7 +39,7 @@ const diffSchema = new Schema({
         }
         return ["span", { class: className }, 0];
       },
-    } as MarkSpec,
+    },
   }),
 });
 

@@ -1,11 +1,12 @@
 import { useMemo } from "react";
 
 import {
-  selectRestTimerPresentation,
-  type RestTimerPresentation,
-  type RestTimerPresentationOptions,
+  
+  
+  selectRestTimerPresentation
 } from "@workspace/domain/routine/domain/rest-timer-presentation";
 import { getActiveExercise } from "@workspace/domain/routine/domain/session-selectors";
+import type {RestTimerPresentation, RestTimerPresentationOptions} from "@workspace/domain/routine/domain/rest-timer-presentation";
 import { useRoutineSession } from "@/features/routine/store/routine-session-context";
 
 type UseRestTimerPresentationOptions = RestTimerPresentationOptions & {

@@ -1,5 +1,6 @@
 "use client";
 
+import { useCallback } from "react";
 import type { ComponentProps } from "react";
 
 import { Button } from "@/components/ui/button";
@@ -8,7 +9,6 @@ import {
   ScrollBar,
 } from "@/components/ui/scroll-area";
 import { cn } from "@/lib/utils";
-import { useCallback } from "react";
 
 export type SuggestionsProps = ComponentProps<typeof ScrollArea>;
 

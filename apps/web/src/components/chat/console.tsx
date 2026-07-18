@@ -1,16 +1,17 @@
 import {
-  type Dispatch,
-  type SetStateAction,
+  
+  
   useCallback,
   useEffect,
   useRef,
-  useState,
+  useState
 } from "react";
-import { useArtifactSelector } from "@/hooks/use-artifact";
-import { cn } from "@/lib/utils";
 import { Button } from "../ui/button";
 import { Spinner } from "../ui/spinner";
 import { CrossSmallIcon, TerminalWindowIcon } from "./icons";
+import type {Dispatch, SetStateAction} from "react";
+import { cn } from "@/lib/utils";
+import { useArtifactSelector } from "@/hooks/use-artifact";
 
 export type ConsoleOutputContent = {
   type: "text" | "image";
@@ -20,12 +21,12 @@ export type ConsoleOutputContent = {
 export type ConsoleOutput = {
   id: string;
   status: "in_progress" | "loading_packages" | "completed" | "failed";
-  contents: ConsoleOutputContent[];
+  contents: Array<ConsoleOutputContent>;
 };
 
 type ConsoleProps = {
-  consoleOutputs: ConsoleOutput[];
-  setConsoleOutputs: Dispatch<SetStateAction<ConsoleOutput[]>>;
+  consoleOutputs: Array<ConsoleOutput>;
+  setConsoleOutputs: Dispatch<SetStateAction<Array<ConsoleOutput>>>;
 };
 
 export function Console({ consoleOutputs, setConsoleOutputs }: ConsoleProps) {

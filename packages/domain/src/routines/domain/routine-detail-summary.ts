@@ -1,4 +1,4 @@
-export function routineDetailStats(exercises: { sets: unknown[] }[]) {
+export function routineDetailStats(exercises: Array<{ sets: Array<unknown> }>) {
   return {
     exerciseCount: exercises.length,
     totalSets: exercises.reduce((n, e) => n + e.sets.length, 0),
@@ -6,7 +6,7 @@ export function routineDetailStats(exercises: { sets: unknown[] }[]) {
 }
 
 export function routineExerciseNamePreview(
-  exercises: { name: string }[],
+  exercises: Array<{ name: string }>,
   maxNames = 3
 ): { preview: string; remaining: number } {
   const preview = exercises

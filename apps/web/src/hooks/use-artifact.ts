@@ -21,7 +21,7 @@ export const initialArtifactData: UIArtifact = {
 
 type Selector<T> = (state: UIArtifact) => T;
 
-export function useArtifactSelector<Selected>(selector: Selector<Selected>) {
+export function useArtifactSelector<TSelected>(selector: Selector<TSelected>) {
   const { data: localArtifact } = useSWR<UIArtifact>("artifact", null, {
     fallbackData: initialArtifactData,
   });

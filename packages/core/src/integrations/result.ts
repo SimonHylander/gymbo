@@ -1,16 +1,16 @@
-import { createIntegrationError, IntegrationErrorCode } from "./errors"
+import { IntegrationErrorCode, createIntegrationError } from "./errors"
 import type { IntegrationError } from "./errors"
 import type { IntegrationResult } from "./types"
 
-export function integrationOk<T, E = IntegrationError>(
+export function integrationOk<T, TError = IntegrationError>(
   value: T,
-): IntegrationResult<T, E> {
+): IntegrationResult<T, TError> {
   return { ok: true, value }
 }
 
-export function integrationErr<E extends IntegrationError = IntegrationError>(
-  error: E,
-): IntegrationResult<never, E> {
+export function integrationErr<TError extends IntegrationError = IntegrationError>(
+  error: TError,
+): IntegrationResult<never, TError> {
   return { ok: false, error }
 }
 
@@ -34,10 +34,10 @@ export function integrationDuplicateRegistration(
   )
 }
 
-export function mapIntegrationResult<T, U, E extends IntegrationError = IntegrationError>(
-  result: IntegrationResult<T, E>,
-  map: (value: T) => U,
-): IntegrationResult<U, E> {
+export function mapIntegrationResult<T, TMapped, TError extends IntegrationError = IntegrationError>(
+  result: IntegrationResult<T, TError>,
+  map: (value: T) => TMapped,
+): IntegrationResult<TMapped, TError> {
   if (!result.ok) {
     return result
   }
@@ -45,10 +45,10 @@ export function mapIntegrationResult<T, U, E extends IntegrationError = Integrat
   return integrationOk(map(result.value))
 }
 
-export function flatMapIntegrationResult<T, U, E extends IntegrationError = IntegrationError>(
-  result: IntegrationResult<T, E>,
-  map: (value: T) => IntegrationResult<U, E>,
-): IntegrationResult<U, E> {
+export function flatMapIntegrationResult<T, TMapped, TError extends IntegrationError = IntegrationError>(
+  result: IntegrationResult<T, TError>,
+  map: (value: T) => IntegrationResult<TMapped, TError>,
+): IntegrationResult<TMapped, TError> {
   if (!result.ok) {
     return result
   }

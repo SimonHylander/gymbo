@@ -3,6 +3,14 @@
 import { ChevronDownIcon } from "lucide-react";
 import { useCallback, useMemo, useState } from "react";
 
+import {
+  
+  
+  deriveRepTargetMode,
+  normalizeRepTargetForSave,
+  parseRepInput
+} from "@workspace/domain/lib/rep-target";
+import type {RepTargetFields, RepTargetMode} from "@workspace/domain/lib/rep-target";
 import { Input } from "@/components/ui/input";
 import {
   DropdownMenu,
@@ -11,13 +19,6 @@ import {
   DropdownMenuRadioItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import {
-  deriveRepTargetMode,
-  normalizeRepTargetForSave,
-  parseRepInput,
-  type RepTargetFields,
-  type RepTargetMode,
-} from "@workspace/domain/lib/rep-target";
 import { cn } from "@/lib/utils";
 
 export type RepPickerProps = RepTargetFields & {

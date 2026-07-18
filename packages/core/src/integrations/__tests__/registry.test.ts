@@ -17,7 +17,7 @@ describe("IntegrationRegistry", () => {
         return { ok: false, error: { code: IntegrationErrorCode.ParseFailed, message: "bad" } }
       }
 
-      return integrationOk({ external: String((input as { external: unknown }).external) })
+      return integrationOk({ external: String((input).external) })
     },
     toInternal: (external) => integrationOk({ internal: external.external }),
   })

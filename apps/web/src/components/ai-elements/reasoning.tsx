@@ -1,13 +1,7 @@
 "use client";
 
-import type { ComponentProps, HTMLAttributes, ReactNode } from "react";
 
 import { useControllableState } from "@radix-ui/react-use-controllable-state";
-import {
-  Collapsible,
-  CollapsibleTrigger,
-} from "@/components/ui/collapsible";
-import { cn } from "@/lib/utils";
 import { cjk } from "@streamdown/cjk";
 import { code } from "@streamdown/code";
 import { math } from "@streamdown/math";
@@ -26,6 +20,12 @@ import {
 import { Streamdown } from "streamdown";
 
 import { Shimmer } from "./shimmer";
+import type { ComponentProps, HTMLAttributes, ReactNode } from "react";
+import { cn } from "@/lib/utils";
+import {
+  Collapsible,
+  CollapsibleTrigger,
+} from "@/components/ui/collapsible";
 
 interface ReasoningContextValue {
   isStreaming: boolean;

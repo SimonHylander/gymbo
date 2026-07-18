@@ -3,14 +3,14 @@ import { memo } from "react";
 import { toast } from "sonner";
 import { useSWRConfig } from "swr";
 import { useCopyToClipboard } from "usehooks-ts";
-import { API_BASE } from "@/lib/api-base";
-import type { Vote } from "@/lib/db/schema";
-import type { ChatMessage } from "@/lib/types";
 import {
   MessageAction as Action,
   MessageActions as Actions,
 } from "../ai-elements/message";
 import { CopyIcon, PencilEditIcon, ThumbDownIcon, ThumbUpIcon } from "./icons";
+import type { Vote } from "@/lib/db/schema";
+import type { ChatMessage } from "@/lib/types";
+import { API_BASE } from "@/lib/api-base";
 
 export function PureMessageActions({
   chatId,
@@ -104,7 +104,7 @@ export function PureMessageActions({
           toast.promise(upvote, {
             loading: "Upvoting Response...",
             success: () => {
-              mutate<Vote[]>(
+              mutate<Array<Vote>>(
                 `${API_BASE}/api/vote?chatId=${chatId}`,
                 (currentVotes) => {
                   if (!currentVotes) {
@@ -157,7 +157,7 @@ export function PureMessageActions({
           toast.promise(downvote, {
             loading: "Downvoting Response...",
             success: () => {
-              mutate<Vote[]>(
+              mutate<Array<Vote>>(
                 `${API_BASE}/api/vote?chatId=${chatId}`,
                 (currentVotes) => {
                   if (!currentVotes) {

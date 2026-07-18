@@ -1,6 +1,6 @@
-import type { Attachment } from "@/lib/types";
 import { Spinner } from "../ui/spinner";
 import { CrossSmallIcon } from "./icons";
+import type { Attachment } from "@/lib/types";
 
 export const PreviewAttachment = ({
   attachment,

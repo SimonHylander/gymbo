@@ -8,6 +8,7 @@ import {
   getAllCompleted,
   getExerciseIndex,
 } from "@workspace/domain/routine/domain/session-selectors";
+import { formatRepTargetLabel } from "@workspace/domain/lib/rep-target";
 import { WorkoutCompleteCta } from "@/features/routine/components/workout-complete-cta";
 import { useExerciseLogging } from "@/features/routine/store/routine-session-context";
 import { useRestTimerPresentation } from "@/features/routine/store/use-rest-timer-presentation";
@@ -16,7 +17,6 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { cn } from "@/lib/utils";
-import { formatRepTargetLabel } from "@workspace/domain/lib/rep-target";
 
 export const exerciseCardHeight = "min(420px, calc(100dvh - 16rem))";
 

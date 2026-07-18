@@ -1,8 +1,8 @@
 import { convexQuery } from "@convex-dev/react-query";
-import type { QueryClient } from "@tanstack/react-query";
 import { notFound } from "@tanstack/react-router";
 
 import { api } from "@workspace/backend/convex/_generated/api";
+import type { QueryClient } from "@tanstack/react-query";
 import type { RoutineLoaderData } from "@workspace/domain/routine/domain/types";
 
 export async function loadRoutine(

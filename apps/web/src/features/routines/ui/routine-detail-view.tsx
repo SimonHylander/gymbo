@@ -1,17 +1,17 @@
 import { Link } from "@tanstack/react-router";
 import { PencilIcon, PlayIcon } from "lucide-react";
 
+import {
+  routineDetailStats,
+  routineExerciseNamePreview,
+} from "@workspace/domain/routines/domain/routine-detail-summary";
+import type { RoutineDetailViewProps } from "@/features/routines/ui/types";
 import { Button } from "@/components/ui/button";
 import {
   Tooltip,
   TooltipContent,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
-import {
-  routineDetailStats,
-  routineExerciseNamePreview,
-} from "@workspace/domain/routines/domain/routine-detail-summary";
-import type { RoutineDetailViewProps } from "@/features/routines/ui/types";
 
 export function RoutineDetailView({
   detail,

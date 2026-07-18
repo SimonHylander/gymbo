@@ -1,8 +1,9 @@
 import { toast } from "sonner";
+import type {ConsoleOutput, ConsoleOutputContent} from "@/components/chat/console";
 import {
-  Console,
-  type ConsoleOutput,
-  type ConsoleOutputContent,
+  Console
+  
+  
 } from "@/components/chat/console";
 import { Artifact } from "@/components/chat/create-artifact";
 import {
@@ -51,8 +52,8 @@ const OUTPUT_HANDLERS = {
   `,
 };
 
-function detectRequiredHandlers(code: string): string[] {
-  const handlers: string[] = ["basic"];
+function detectRequiredHandlers(code: string): Array<string> {
+  const handlers: Array<string> = ["basic"];
 
   if (code.includes("matplotlib") || code.includes("plt.")) {
     handlers.push("matplotlib");
@@ -62,7 +63,7 @@ function detectRequiredHandlers(code: string): string[] {
 }
 
 type Metadata = {
-  outputs: ConsoleOutput[];
+  outputs: Array<ConsoleOutput>;
 };
 
 export const codeArtifact = new Artifact<"code", Metadata>({
@@ -113,7 +114,7 @@ export const codeArtifact = new Artifact<"code", Metadata>({
       description: "Execute code",
       onClick: async ({ content, setMetadata }) => {
         const runId = generateUUID();
-        const outputContent: ConsoleOutputContent[] = [];
+        const outputContent: Array<ConsoleOutputContent> = [];
 
         setMetadata((metadata) => ({
           ...metadata,

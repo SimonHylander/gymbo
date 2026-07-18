@@ -2,19 +2,14 @@
 
 import equal from "fast-deep-equal";
 import {
-  type MouseEvent,
+  
   memo,
   useCallback,
   useEffect,
   useMemo,
-  useRef,
+  useRef
 } from "react";
 import useSWR from "swr";
-import { useArtifact } from "@/hooks/use-artifact";
-import { API_BASE } from "@/lib/api-base";
-import type { Document } from "@/lib/db/schema";
-import { cn, fetcher } from "@/lib/utils";
-import type { ArtifactKind, UIArtifact } from "./artifact";
 import { InlineDocumentSkeleton } from "./document-skeleton";
 import {
   CodeIcon,
@@ -26,6 +21,12 @@ import {
 import { ImageEditor } from "./image-editor";
 import { SpreadsheetEditor } from "./sheet-editor";
 import { Editor } from "./text-editor";
+import type { ArtifactKind, UIArtifact } from "./artifact";
+import type { Document } from "@/lib/db/schema";
+import type {MouseEvent} from "react";
+import { cn, fetcher } from "@/lib/utils";
+import { API_BASE } from "@/lib/api-base";
+import { useArtifact } from "@/hooks/use-artifact";
 
 type DocumentToolOutput = {
   id: string;
@@ -48,7 +49,7 @@ export function DocumentPreview({
   const { artifact, setArtifact } = useArtifact();
 
   const { data: documents, isLoading: isDocumentsFetching } = useSWR<
-    Document[]
+    Array<Document>
   >(
     result
       ? `${API_BASE}/api/document?id=${result.id}`

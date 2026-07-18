@@ -53,7 +53,7 @@ export async function assertNoOngoingWorkout(
 
 export async function buildOngoingRoutineIdSet(
   ctx: QueryCtx,
-  routineIds: Id<"routines">[]
+  routineIds: Array<Id<"routines">>
 ): Promise<Set<Id<"routines">>> {
   const ongoingSet = new Set<Id<"routines">>()
   await Promise.all(

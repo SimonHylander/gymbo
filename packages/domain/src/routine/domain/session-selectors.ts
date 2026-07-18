@@ -1,6 +1,5 @@
 import { isExerciseComplete } from "./exercise-log";
-import type { Exercise, Routine } from "./types";
-import type { ExerciseLogState } from "./types";
+import type { Exercise, ExerciseLogState, Routine  } from "./types";
 
 export function getExerciseIndex(
   routine: Routine,

@@ -1,8 +1,6 @@
 "use client";
 
-import type { UseChatHelpers } from "@ai-sdk/react";
 import { useNavigate } from "@tanstack/react-router";
-import type { UIMessage } from "ai";
 import equal from "fast-deep-equal";
 
 import {
@@ -15,42 +13,22 @@ import {
 
 import { useTheme } from "next-themes";
 import {
-  type ChangeEvent,
-  type Dispatch,
+  
+  
+  
   memo,
-  type SetStateAction,
   useCallback,
   useEffect,
   useRef,
-  useState,
+  useState
 } from "react";
 
 import { toast } from "sonner";
 import useSWR from "swr";
 import { useLocalStorage, useWindowSize } from "usehooks-ts";
 
-import {
-  ModelSelector,
-  ModelSelectorContent,
-  ModelSelectorGroup,
-  ModelSelectorInput,
-  ModelSelectorItem,
-  ModelSelectorList,
-  ModelSelectorLogo,
-  ModelSelectorName,
-  ModelSelectorTrigger,
-} from "@/components/ai-elements/model-selector";
 
-import {
-  type ChatModel,
-  chatModels,
-  DEFAULT_CHAT_MODEL,
-  type ModelCapabilities,
-} from "@/lib/ai/models";
 
-import { API_BASE } from "@/lib/api-base";
-import type { Attachment, ChatMessage } from "@/lib/types";
-import { cn } from "@/lib/utils";
 import {
   PromptInput,
   PromptInputFooter,
@@ -63,13 +41,38 @@ import { PaperclipIcon, StopIcon } from "./icons";
 import { PreviewAttachment } from "./preview-attachment";
 
 import {
-  type SlashCommand,
+  
   SlashCommandMenu,
-  slashCommands,
+  slashCommands
 } from "./slash-commands";
-
 import { SuggestedActions } from "./suggested-actions";
+import type {SlashCommand} from "./slash-commands";
+
+import type { Attachment, ChatMessage } from "@/lib/types";
+import type {ChangeEvent, Dispatch, SetStateAction} from "react";
+import type { UIMessage } from "ai";
+import type { UseChatHelpers } from "@ai-sdk/react";
 import type { VisibilityType } from "./visibility-selector";
+import type {ChatModel, ModelCapabilities} from "@/lib/ai/models";
+import {
+  
+  DEFAULT_CHAT_MODEL,
+  
+  chatModels
+} from "@/lib/ai/models";
+import { cn } from "@/lib/utils";
+import { API_BASE } from "@/lib/api-base";
+import {
+  ModelSelector,
+  ModelSelectorContent,
+  ModelSelectorGroup,
+  ModelSelectorInput,
+  ModelSelectorItem,
+  ModelSelectorList,
+  ModelSelectorLogo,
+  ModelSelectorName,
+  ModelSelectorTrigger,
+} from "@/components/ai-elements/model-selector";
 
 function setCookie(name: string, value: string) {
   const maxAge = 60 * 60 * 24 * 365;
@@ -101,9 +104,9 @@ function PureMultimodalInput({
   setInput: Dispatch<SetStateAction<string>>;
   status: UseChatHelpers<ChatMessage>["status"];
   stop: () => void;
-  attachments: Attachment[];
-  setAttachments: Dispatch<SetStateAction<Attachment[]>>;
-  messages: UIMessage[];
+  attachments: Array<Attachment>;
+  setAttachments: Dispatch<SetStateAction<Array<Attachment>>>;
+  messages: Array<UIMessage>;
   setMessages: UseChatHelpers<ChatMessage>["setMessages"];
   sendMessage:
     | UseChatHelpers<ChatMessage>["sendMessage"]
@@ -219,7 +222,7 @@ function PureMultimodalInput({
   };
 
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const [uploadQueue, setUploadQueue] = useState<string[]>([]);
+  const [uploadQueue, setUploadQueue] = useState<Array<string>>([]);
   const [slashOpen, setSlashOpen] = useState(false);
   const [slashQuery, setSlashQuery] = useState("");
   const [slashIndex, setSlashIndex] = useState(0);
@@ -353,7 +356,7 @@ function PureMultimodalInput({
 
         setAttachments((curr) => [
           ...curr,
-          ...(successfullyUploadedAttachments as Attachment[]),
+          ...(successfullyUploadedAttachments as Array<Attachment>),
         ]);
       } catch (_error) {
         toast.error("Failed to upload pasted image(s)");
@@ -648,7 +651,7 @@ function PureModelSelectorCompact({
 
   const capabilities: Record<string, ModelCapabilities> | undefined =
     modelsData?.capabilities ?? modelsData;
-  const dynamicModels: ChatModel[] | undefined = modelsData?.models;
+  const dynamicModels: Array<ChatModel> | undefined = modelsData?.models;
   const activeModels = dynamicModels ?? chatModels;
 
   const selectedModel =
@@ -683,7 +686,7 @@ function PureModelSelectorCompact({
 
             const grouped: Record<
               string,
-              { model: ChatModel; curated: boolean }[]
+              Array<{ model: ChatModel; curated: boolean }>
             > = {};
             for (const model of allModels) {
               const key = curatedIds.has(model.id)

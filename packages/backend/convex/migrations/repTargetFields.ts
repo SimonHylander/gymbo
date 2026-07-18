@@ -1,8 +1,8 @@
 import { v } from "convex/values"
 
 import { internalMutation } from "../_generated/server"
-import type { MutationCtx } from "../_generated/server"
 import { parseLegacyRepTarget } from "../lib/repTarget"
+import type { MutationCtx } from "../_generated/server"
 
 /**
  * One-time migration: convert legacy string `reps` (e.g. "10-12") to

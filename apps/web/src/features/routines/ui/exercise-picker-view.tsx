@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { CheckIcon, ChevronsUpDownIcon } from "lucide-react";
 
+import type { ExercisePickerViewProps } from "@/features/routines/ui/types";
 import { Button } from "@/components/ui/button";
 import {
   Command,
@@ -16,7 +17,6 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import { cn } from "@/lib/utils";
-import type { ExercisePickerViewProps } from "@/features/routines/ui/types";
 
 export function ExercisePickerView({
   options,

@@ -1,8 +1,8 @@
 "use client";
 
 import { useNavigate } from "@tanstack/react-router";
-import { suggestions } from "@/lib/constants";
 import { SparklesIcon } from "./icons";
+import { suggestions } from "@/lib/constants";
 
 export function Preview() {
   const navigate = useNavigate();

@@ -1,5 +1,10 @@
 import { useState } from "react";
 
+import {
+  JOINT_PAIN_OPTIONS
+  
+} from "@workspace/domain/routine/domain/joint-pain";
+import type {JointPainLevel} from "@workspace/domain/routine/domain/joint-pain";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -9,10 +14,6 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import {
-  JOINT_PAIN_OPTIONS,
-  type JointPainLevel,
-} from "@workspace/domain/routine/domain/joint-pain";
 import { cn } from "@/lib/utils";
 
 type JointPainCheckInDialogProps = {

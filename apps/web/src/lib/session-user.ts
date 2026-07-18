@@ -1,6 +1,7 @@
 import { useUser } from "@clerk/tanstack-react-start"
 
-import { MOCK_USER, type MockUser } from "./mock-auth"
+import { MOCK_USER  } from "./mock-auth"
+import type {MockUser} from "./mock-auth";
 
 const clerkEnabled = Boolean(import.meta.env.VITE_CLERK_PUBLISHABLE_KEY)
 

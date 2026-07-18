@@ -9,8 +9,8 @@ import type {
 import type { RepTargetFields } from "@workspace/domain/lib/rep-target";
 
 export type RoutineListCardsViewProps = {
-  programs: RoutineListProgram[];
-  unassignedRoutines: RoutineSummary[];
+  programs: Array<RoutineListProgram>;
+  unassignedRoutines: Array<RoutineSummary>;
   isLoading?: boolean;
 };
 
@@ -51,7 +51,7 @@ export type RoutineEditExerciseViewProps = {
 };
 
 export type ExercisePickerViewProps = {
-  options: ExerciseCatalogItem[];
+  options: Array<ExerciseCatalogItem>;
   isLoading: boolean;
   onSelect: (item: ExerciseCatalogItem) => void;
   onSearchChange: (search: string) => void;
@@ -59,9 +59,9 @@ export type ExercisePickerViewProps = {
 };
 
 export type RoutineEditViewProps = {
-  draft: { name: string; exercises: RoutineExerciseDraft[] };
+  draft: { name: string; exercises: Array<RoutineExerciseDraft> };
   isSaving: boolean;
-  catalogOptions: ExerciseCatalogItem[];
+  catalogOptions: Array<ExerciseCatalogItem>;
   catalogLoading: boolean;
   catalogSearch: string;
   onCatalogSearchChange: (search: string) => void;

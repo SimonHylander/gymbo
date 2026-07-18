@@ -1,7 +1,8 @@
 import { v } from "convex/values"
 
-import { internalMutation, type MutationCtx } from "../_generated/server"
+import {  internalMutation } from "../_generated/server"
 import { DEV_USER_ID } from "../lib/devIdentity"
+import type {MutationCtx} from "../_generated/server";
 
 /**
  * Claims pre-principal rows (created before workouts/exerciseBiofeedback

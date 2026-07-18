@@ -11,7 +11,7 @@
     "test:watch": "vitest"
   },
   "devDependencies": {
-    "@tanstack/eslint-config": "^0.3.0",
+    "@workspace/config": "workspace:*",
     "eslint": "^9.39.2",
     "typescript": "^5.9.3",
     "vitest": "^3.2.4"

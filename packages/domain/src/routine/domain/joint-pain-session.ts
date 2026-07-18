@@ -10,9 +10,9 @@ export type JointPainSessionConfig = {
   open: boolean;
   targetExerciseId: string | null;
   workoutId: string | null;
-  exercises: Exercise[];
+  exercises: Array<Exercise>;
   workoutExerciseIds: Record<string, string>;
-  existingFeedback: ExistingJointPainFeedback[] | undefined;
+  existingFeedback: Array<ExistingJointPainFeedback> | undefined;
 };
 
 export type JointPainSessionState = {
@@ -89,9 +89,9 @@ export function openJointPainWizard(): {
 }
 
 export function prefillSavedLevels(
-  _exercises: Exercise[],
+  _exercises: Array<Exercise>,
   workoutExerciseIds: Record<string, string>,
-  feedback: ExistingJointPainFeedback[]
+  feedback: Array<ExistingJointPainFeedback>
 ): Record<string, JointPainLevel> {
   const workoutExerciseIdToExerciseId = Object.fromEntries(
     Object.entries(workoutExerciseIds).map(([exerciseId, workoutExerciseId]) => [
@@ -135,7 +135,7 @@ function allExercisesRated(
   return config.exercises.every((exercise) => savedLevels[exercise.id] !== undefined);
 }
 
-function getWizardExercises(config: JointPainSessionConfig): Exercise[] {
+function getWizardExercises(config: JointPainSessionConfig): Array<Exercise> {
   if (config.targetExerciseId) {
     const exercise = config.exercises.find(
       (entry) => entry.id === config.targetExerciseId
@@ -212,7 +212,7 @@ export function selectJointPainViewModel(
 export function reduceJointPainSession(
   state: JointPainSessionState,
   event: JointPainSessionEvent
-): { state: JointPainSessionState; effects: JointPainSessionEffect[] } {
+): { state: JointPainSessionState; effects: Array<JointPainSessionEffect> } {
   switch (event.type) {
     case "opened":
       return { state: createJointPainSessionState(), effects: [] };

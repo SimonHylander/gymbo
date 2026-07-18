@@ -1,7 +1,7 @@
 import { parsePrevious } from "@workspace/domain/routine/domain/exercise-log";
-import type { SetEntry } from "@workspace/domain/routine/domain/types";
 import { CheckCircle2Icon, Trash2Icon } from "lucide-react";
 import { useState } from "react";
+import type { SetEntry } from "@workspace/domain/routine/domain/types";
 
 import {
   AlertDialog,

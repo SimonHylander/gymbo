@@ -1,11 +1,12 @@
 import { ConvexError, v } from "convex/values"
 
-import type { Doc, Id } from "./_generated/dataModel"
-import { mutation, query, type MutationCtx, type QueryCtx } from "./_generated/server"
+import {   mutation, query } from "./_generated/server"
 import { getOwnedWorkout } from "./lib/ownership"
 import { requireUser } from "./lib/principal"
 import { getRoutineByExternalId } from "./lib/routines"
 import { exerciseLog, workoutStatus } from "./validators"
+import type {MutationCtx, QueryCtx} from "./_generated/server";
+import type { Doc, Id } from "./_generated/dataModel"
 
 const workoutSessionValidator = v.object({
   workoutId: v.id("workouts"),

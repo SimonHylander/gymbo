@@ -1,7 +1,7 @@
 import { v } from "convex/values"
 
-import type { Doc } from "../_generated/dataModel"
 import { internalMutation } from "../_generated/server"
+import type { Doc } from "../_generated/dataModel"
 
 /**
  * Removes duplicate seed rows that share (userId, externalId), keeping the
@@ -31,14 +31,14 @@ export const run = internalMutation({
     }
 
     const duplicatesOf = <T extends Doc<"routines"> | Doc<"programs">>(
-      rows: T[]
-    ): T[] => {
-      const byKey = new Map<string, T[]>()
+      rows: Array<T>
+    ): Array<T> => {
+      const byKey = new Map<string, Array<T>>()
       for (const row of rows) {
         const key = `${row.userId ?? ""}:${row.externalId}`
         byKey.set(key, [...(byKey.get(key) ?? []), row])
       }
-      const duplicates: T[] = []
+      const duplicates: Array<T> = []
       for (const group of byKey.values()) {
         const sorted = group.sort((a, b) => a._creationTime - b._creationTime)
         duplicates.push(...sorted.slice(1))

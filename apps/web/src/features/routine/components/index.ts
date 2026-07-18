@@ -1,5 +1,5 @@
 import { RoutineProvider } from "@/features/routine/store/routine-session-context";
-import { RoutineShell, RoutineMain } from "@/features/routine/components/routine-shell";
+import { RoutineMain, RoutineShell } from "@/features/routine/components/routine-shell";
 import { RoutineSidebar } from "@/features/routine/components/routine-sidebar";
 import { RoutineHeader } from "@/features/routine/components/routine-header";
 import { RoutineScrollContent } from "@/features/routine/components/routine-scroll-content";

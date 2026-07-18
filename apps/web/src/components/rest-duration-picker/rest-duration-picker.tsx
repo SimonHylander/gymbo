@@ -3,6 +3,11 @@
 import { TimerIcon } from "lucide-react";
 import { useCallback, useState } from "react";
 
+import {
+  REST_DURATION_OPTION_SECONDS,
+  formatRestDurationPickerLabel,
+  nearestRestDurationOption,
+} from "@workspace/domain/lib/rest-duration-options";
 import { RestDurationWheel } from "@/components/rest-duration-picker/rest-duration-wheel";
 import { Button } from "@/components/ui/button";
 import {
@@ -10,11 +15,6 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
-import {
-  REST_DURATION_OPTION_SECONDS,
-  formatRestDurationPickerLabel,
-  nearestRestDurationOption,
-} from "@workspace/domain/lib/rest-duration-options";
 import { cn } from "@/lib/utils";
 
 const DEFAULT_PREVIEW_SECONDS = 120;

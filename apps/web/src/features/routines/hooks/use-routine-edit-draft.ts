@@ -4,9 +4,10 @@ import { useMutation as useConvexMutation } from "convex/react";
 import { useCallback, useEffect, useMemo, useState } from "react";
 
 import { api } from "@workspace/backend/convex/_generated/api";
-import { routinesQueries } from "@/features/routines/adapters/query-keys";
-import { saveRoutineTemplate } from "@/features/routines/adapters/save-routine-template";
-import { detailToDraft } from "@workspace/domain/routines/domain/map-routine-template";
+import { addExerciseToDraft,
+  detailToDraft,
+  removeExerciseFromDraft,
+  updateExerciseInDraft } from "@workspace/domain/routines/domain/map-routine-template";
 import {
   addSetToExercise,
   createExerciseDraftFromCatalog,
@@ -21,13 +22,10 @@ import type {
   RoutineTemplateDraft,
   SetTemplate,
 } from "@workspace/domain/routines/domain/types";
-import {
-  addExerciseToDraft,
-  removeExerciseFromDraft,
-  updateExerciseInDraft,
-} from "@workspace/domain/routines/domain/map-routine-template";
-import { toast } from "@/components/chat/toast";
 import type { RepTargetFields } from "@workspace/domain/lib/rep-target";
+import { toast } from "@/components/chat/toast";
+import { saveRoutineTemplate } from "@/features/routines/adapters/save-routine-template";
+import { routinesQueries } from "@/features/routines/adapters/query-keys";
 
 type UseRoutineEditDraftOptions = {
   detail: RoutineDetail | null;

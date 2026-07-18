@@ -1,34 +1,35 @@
-import type { UseChatHelpers } from "@ai-sdk/react";
 import { formatDistance } from "date-fns";
 import equal from "fast-deep-equal";
 import { AnimatePresence, motion } from "framer-motion";
 import {
-  type Dispatch,
+  
+  
   memo,
-  type SetStateAction,
   useCallback,
   useEffect,
   useRef,
-  useState,
+  useState
 } from "react";
 import useSWR, { useSWRConfig } from "swr";
 import { useWindowSize } from "usehooks-ts";
-import { codeArtifact } from "@/artifacts/code/client";
-import { imageArtifact } from "@/artifacts/image/client";
-import { sheetArtifact } from "@/artifacts/sheet/client";
-import { textArtifact } from "@/artifacts/text/client";
-import { useArtifact } from "@/hooks/use-artifact";
-import { API_BASE } from "@/lib/api-base";
-import type { Document, Vote } from "@/lib/db/schema";
-import type { Attachment, ChatMessage } from "@/lib/types";
-import { fetcher } from "@/lib/utils";
 import { useSidebar } from "../ui/sidebar";
 import { ArtifactActions } from "./artifact-actions";
 import { ArtifactCloseButton } from "./artifact-close-button";
 import { LoaderIcon } from "./icons";
 import { Toolbar } from "./toolbar";
 import { VersionFooter } from "./version-footer";
+import type { Attachment, ChatMessage } from "@/lib/types";
+import type { Document, Vote } from "@/lib/db/schema";
+import type {Dispatch, SetStateAction} from "react";
+import type { UseChatHelpers } from "@ai-sdk/react";
 import type { VisibilityType } from "./visibility-selector";
+import { fetcher } from "@/lib/utils";
+import { API_BASE } from "@/lib/api-base";
+import { useArtifact } from "@/hooks/use-artifact";
+import { textArtifact } from "@/artifacts/text/client";
+import { sheetArtifact } from "@/artifacts/sheet/client";
+import { imageArtifact } from "@/artifacts/image/client";
+import { codeArtifact } from "@/artifacts/code/client";
 
 export const artifactDefinitions = [
   textArtifact,
@@ -77,11 +78,11 @@ function PureArtifact({
   setInput: Dispatch<SetStateAction<string>>;
   status: UseChatHelpers<ChatMessage>["status"];
   stop: UseChatHelpers<ChatMessage>["stop"];
-  attachments: Attachment[];
-  setAttachments: Dispatch<SetStateAction<Attachment[]>>;
-  messages: ChatMessage[];
+  attachments: Array<Attachment>;
+  setAttachments: Dispatch<SetStateAction<Array<Attachment>>>;
+  messages: Array<ChatMessage>;
   setMessages: UseChatHelpers<ChatMessage>["setMessages"];
-  votes: Vote[] | undefined;
+  votes: Array<Vote> | undefined;
   sendMessage: UseChatHelpers<ChatMessage>["sendMessage"];
   regenerate: UseChatHelpers<ChatMessage>["regenerate"];
   isReadonly: boolean;
@@ -94,7 +95,7 @@ function PureArtifact({
     data: documents,
     isLoading: isDocumentsFetching,
     mutate: mutateDocuments,
-  } = useSWR<Document[]>(
+  } = useSWR<Array<Document>>(
     artifact.documentId !== "init" && artifact.status !== "streaming"
       ? `${API_BASE}/api/document?id=${artifact.documentId}`
       : null,
@@ -154,7 +155,7 @@ function PureArtifact({
         return;
       }
 
-      mutate<Document[]>(
+      mutate<Array<Document>>(
         `${API_BASE}/api/document?id=${artifact.documentId}`,
         async (currentDocuments) => {
           if (!currentDocuments) {
@@ -301,7 +302,7 @@ function PureArtifact({
   const consoleError =
     metadata?.outputs
       ?.filter((o: { status: string }) => o.status === "failed")
-      .flatMap((o: { contents: { type: string; value: string }[] }) =>
+      .flatMap((o: { contents: Array<{ type: string; value: string }> }) =>
         o.contents.filter((c) => c.type === "text").map((c) => c.value)
       )
       .join("\n") || undefined;

@@ -4,10 +4,10 @@ export interface OutboundAdapter<TInternal, TExternal> {
   readonly id: IntegrationId
 
   /** Map a Gymbo-internal shape to an external payload. */
-  toExternal(
+  toExternal: (
     internal: TInternal,
     ctx: IntegrationContext,
-  ): IntegrationResult<TExternal>
+  ) => IntegrationResult<TExternal>
 }
 
 export type OutboundAdapterDefinition<TInternal, TExternal> = OutboundAdapter<

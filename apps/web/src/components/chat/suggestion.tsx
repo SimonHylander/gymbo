@@ -2,9 +2,9 @@
 
 import { AnimatePresence, motion } from "framer-motion";
 
-import type { UISuggestion } from "@/lib/editor/suggestions";
 import { Button } from "../ui/button";
 import { CrossIcon, SparklesIcon } from "./icons";
+import type { UISuggestion } from "@/lib/editor/suggestions";
 
 export const SuggestionDialog = ({
   suggestion,

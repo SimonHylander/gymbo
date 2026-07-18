@@ -2,8 +2,8 @@ const REST_DURATION_MIN_SECONDS = 30;
 const REST_DURATION_MAX_SECONDS = 300;
 const REST_DURATION_STEP_SECONDS = 15;
 
-function buildRestDurationOptions(): readonly number[] {
-  const options: number[] = [];
+function buildRestDurationOptions(): ReadonlyArray<number> {
+  const options: Array<number> = [];
 
   for (
     let seconds = REST_DURATION_MIN_SECONDS;
@@ -27,7 +27,7 @@ export function nearestRestDurationOption(seconds: number): number {
     return seconds;
   }
 
-  let nearest = REST_DURATION_OPTION_SECONDS[0]!;
+  let nearest = REST_DURATION_OPTION_SECONDS[0];
   let smallestDistance = Math.abs(seconds - nearest);
 
   for (const option of REST_DURATION_OPTION_SECONDS) {

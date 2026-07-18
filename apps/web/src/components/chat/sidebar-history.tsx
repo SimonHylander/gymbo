@@ -6,6 +6,10 @@ import { useNavigate, useRouterState } from "@tanstack/react-router";
 import { useState } from "react";
 import { toast } from "sonner";
 import useSWRInfinite from "swr/infinite";
+import { LoaderIcon } from "./icons";
+import { ChatItem } from "./sidebar-history-item";
+import type { Chat } from "@/lib/db/schema";
+import type { MockUser } from "@/lib/mock-auth";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -24,28 +28,24 @@ import {
   useSidebar,
 } from "@/components/ui/sidebar";
 import { API_BASE } from "@/lib/api-base";
-import type { Chat } from "@/lib/db/schema";
-import type { MockUser } from "@/lib/mock-auth";
 import { fetcher } from "@/lib/utils";
-import { LoaderIcon } from "./icons";
-import { ChatItem } from "./sidebar-history-item";
 
 type GroupedChats = {
-  today: Chat[];
-  yesterday: Chat[];
-  lastWeek: Chat[];
-  lastMonth: Chat[];
-  older: Chat[];
+  today: Array<Chat>;
+  yesterday: Array<Chat>;
+  lastWeek: Array<Chat>;
+  lastMonth: Array<Chat>;
+  older: Array<Chat>;
 };
 
 export type ChatHistory = {
-  chats: Chat[];
+  chats: Array<Chat>;
   hasMore: boolean;
 };
 
 const PAGE_SIZE = 20;
 
-const groupChatsByDate = (chats: Chat[]): GroupedChats => {
+const groupChatsByDate = (chats: Array<Chat>): GroupedChats => {
   const now = new Date();
   const oneWeekAgo = subWeeks(now, 1);
   const oneMonthAgo = subMonths(now, 1);

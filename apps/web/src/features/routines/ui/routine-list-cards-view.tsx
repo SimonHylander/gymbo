@@ -1,9 +1,9 @@
 import { Link } from "@tanstack/react-router";
 import { ChevronRightIcon } from "lucide-react";
 
+import type { RoutineListCardsViewProps } from "@/features/routines/ui/types";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
-import type { RoutineListCardsViewProps } from "@/features/routines/ui/types";
 
 function RoutineCard({
   externalId,

@@ -9,7 +9,7 @@ export type SetEntry = {
 };
 
 export type ExerciseLogState = {
-  sets: SetEntry[];
+  sets: Array<SetEntry>;
   completed: boolean;
 };
 
@@ -23,19 +23,19 @@ export type HistoryEntry = {
 export type Exercise = {
   id: string;
   name: string;
-  sets: SetEntry[];
+  sets: Array<SetEntry>;
   reps?: number;
   repRangeMin?: number;
   repRangeMax?: number;
   restSeconds?: number;
   notes?: string;
-  history: HistoryEntry[];
+  history: Array<HistoryEntry>;
 };
 
 export type Routine = {
   id: string;
   name: string;
-  exercises: Exercise[];
+  exercises: Array<Exercise>;
 };
 
 export type UserNote = {

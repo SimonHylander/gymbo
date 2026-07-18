@@ -1,15 +1,17 @@
+import {  clsx } from 'clsx';
+import { formatISO } from 'date-fns';
+import { twMerge } from 'tailwind-merge';
+import { ChatbotError  } from './errors';
+import type {ErrorCode} from './errors';
+import type {ClassValue} from 'clsx';
+import type { DBMessage, Document } from '@/lib/db/schema';
 import type {
   UIMessage,
   UIMessagePart,
 } from 'ai';
-import { type ClassValue, clsx } from 'clsx';
-import { formatISO } from 'date-fns';
-import { twMerge } from 'tailwind-merge';
-import type { DBMessage, Document } from '@/lib/db/schema';
-import { ChatbotError, type ErrorCode } from './errors';
 import type { ChatMessage, ChatTools, CustomUIDataTypes } from './types';
 
-export function cn(...inputs: ClassValue[]) {
+export function cn(...inputs: Array<ClassValue>) {
   return twMerge(clsx(inputs));
 }
 
@@ -55,7 +57,7 @@ export function generateUUID(): string {
 }
 
 export function getDocumentTimestampByIndex(
-  documents: Document[],
+  documents: Array<Document>,
   index: number,
 ) {
   if (!documents) { return new Date(); }
@@ -68,11 +70,11 @@ export function sanitizeText(text: string) {
   return text.replace('<has_function_call>', '');
 }
 
-export function convertToUIMessages(messages: DBMessage[]): ChatMessage[] {
+export function convertToUIMessages(messages: Array<DBMessage>): Array<ChatMessage> {
   return messages.map((message) => ({
     id: message.id,
     role: message.role as 'user' | 'assistant' | 'system',
-    parts: message.parts as UIMessagePart<CustomUIDataTypes, ChatTools>[],
+    parts: message.parts as Array<UIMessagePart<CustomUIDataTypes, ChatTools>>,
     metadata: {
       createdAt: formatISO(message.createdAt),
     },

@@ -1,10 +1,12 @@
 import { ConvexError, v } from "convex/values"
 
-import type { Doc, Id } from "./_generated/dataModel"
-import { mutation, query, type MutationCtx } from "./_generated/server"
+import {  mutation, query } from "./_generated/server"
 import { getOwnedWorkout } from "./lib/ownership"
-import { requireUser, type UserId } from "./lib/principal"
+import {  requireUser } from "./lib/principal"
 import { jointPainLevel } from "./validators"
+import type {UserId} from "./lib/principal";
+import type {MutationCtx} from "./_generated/server";
+import type { Doc, Id } from "./_generated/dataModel"
 
 const exerciseBiofeedbackDoc = v.object({
   _id: v.id("exerciseBiofeedback"),

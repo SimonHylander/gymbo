@@ -1,9 +1,10 @@
 import { describe, expect, it } from "vitest"
 
 import {
-  resolveNextRoutineMembership,
-  type ProgramMembership,
+  
+  resolveNextRoutineMembership
 } from "./programNavigation"
+import type {ProgramMembership} from "./programNavigation";
 
 function membership(
   order: number,
@@ -14,7 +15,7 @@ function membership(
 }
 
 describe("resolveNextRoutineMembership", () => {
-  const split: ProgramMembership[] = [
+  const split: Array<ProgramMembership> = [
     membership(0, "day-a", "Day A"),
     membership(1, "day-b", "Day B"),
     membership(2, "day-c", "Day C"),

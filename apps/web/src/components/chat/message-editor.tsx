@@ -1,8 +1,8 @@
 "use client";
 
 import type { UseChatHelpers } from "@ai-sdk/react";
-import { API_BASE } from "@/lib/api-base";
 import type { ChatMessage } from "@/lib/types";
+import { API_BASE } from "@/lib/api-base";
 
 export async function submitEditedMessage({
   message,

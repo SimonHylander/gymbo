@@ -1,16 +1,17 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
-import type { WorkoutMutations } from "@workspace/domain/routine/sync/workout-mutations";
-import type { JointPainLevel } from "@workspace/domain/routine/domain/joint-pain";
 import {
+  
+  
+  
   createJointPainSessionState,
   prefillSavedLevels,
   reduceJointPainSession,
-  selectJointPainViewModel,
-  type ExistingJointPainFeedback,
-  type JointPainSessionConfig,
-  type JointPainSessionEvent,
+  selectJointPainViewModel
 } from "@workspace/domain/routine/domain/joint-pain-session";
+import type {ExistingJointPainFeedback, JointPainSessionConfig, JointPainSessionEvent} from "@workspace/domain/routine/domain/joint-pain-session";
+import type { WorkoutMutations } from "@workspace/domain/routine/sync/workout-mutations";
+import type { JointPainLevel } from "@workspace/domain/routine/domain/joint-pain";
 import type { Exercise } from "@workspace/domain/routine/domain/types";
 import type { Id } from "@workspace/backend/convex/_generated/dataModel";
 import { toast } from "@/components/chat/toast";
@@ -19,9 +20,9 @@ type UseJointPainSessionOptions = {
   open: boolean;
   targetExerciseId: string | null;
   workoutId: Id<"workouts"> | null;
-  exercises: Exercise[];
+  exercises: Array<Exercise>;
   workoutExerciseIds: Record<string, Id<"workoutExercises">>;
-  existingFeedback: ExistingJointPainFeedback[] | undefined;
+  existingFeedback: Array<ExistingJointPainFeedback> | undefined;
   recordJointPain: WorkoutMutations["recordJointPain"];
   onComplete: () => Promise<void>;
   onSingleExerciseSaved: (exerciseId: string) => void;

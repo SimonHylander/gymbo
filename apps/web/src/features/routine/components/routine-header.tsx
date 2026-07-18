@@ -1,12 +1,12 @@
 import { ArrowLeftIcon, PlayIcon } from "lucide-react";
 import { useEffect, useState } from "react";
 
-import { LeaveWorkoutDialog } from "@/features/routine/components/leave-workout-dialog";
 import {
   formatWorkoutElapsedMinutes,
   getWorkoutElapsedMs,
 } from "@workspace/domain/routine/domain/workout-timer";
 import { getAllCompleted, getWorkoutStats } from "@workspace/domain/routine/domain/session-selectors";
+import { LeaveWorkoutDialog } from "@/features/routine/components/leave-workout-dialog";
 import {
   useRoutineSession,
   useWorkoutLifecycle,

@@ -1,20 +1,6 @@
 "use client";
 
-import type { UIMessage } from "ai";
-import type { ComponentProps, HTMLAttributes, ReactElement } from "react";
 
-import { Button } from "@/components/ui/button";
-import {
-  ButtonGroup,
-  ButtonGroupText,
-} from "@/components/ui/button-group";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
-import { cn } from "@/lib/utils";
 import { cjk } from "@streamdown/cjk";
 import { code } from "@streamdown/code";
 import { math } from "@streamdown/math";
@@ -30,6 +16,20 @@ import {
   useState,
 } from "react";
 import { Streamdown } from "streamdown";
+import type { ComponentProps, HTMLAttributes, ReactElement } from "react";
+import type { UIMessage } from "ai";
+import { cn } from "@/lib/utils";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
+import {
+  ButtonGroup,
+  ButtonGroupText,
+} from "@/components/ui/button-group";
+import { Button } from "@/components/ui/button";
 
 export type MessageProps = HTMLAttributes<HTMLDivElement> & {
   from: UIMessage["role"];
@@ -117,8 +117,8 @@ interface MessageBranchContextType {
   totalBranches: number;
   goToPrevious: () => void;
   goToNext: () => void;
-  branches: ReactElement[];
-  setBranches: (branches: ReactElement[]) => void;
+  branches: Array<ReactElement>;
+  setBranches: (branches: Array<ReactElement>) => void;
 }
 
 const MessageBranchContext = createContext<MessageBranchContextType | null>(
@@ -149,7 +149,7 @@ export const MessageBranch = ({
   ...props
 }: MessageBranchProps) => {
   const [currentBranch, setCurrentBranch] = useState(defaultBranch);
-  const [branches, setBranches] = useState<ReactElement[]>([]);
+  const [branches, setBranches] = useState<Array<ReactElement>>([]);
 
   const handleBranchChange = useCallback(
     (newBranch: number) => {

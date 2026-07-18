@@ -1,14 +1,14 @@
-import { QueryClient } from "@tanstack/react-query"
 import {
   HeadContent,
   Scripts,
   createRootRouteWithContext,
 } from "@tanstack/react-router"
 import { Toaster } from "sonner"
+import appCss from "@workspace/ui/globals.css?url"
+import type { QueryClient } from "@tanstack/react-query"
 import { ThemeProvider } from "@/components/theme-provider"
 import { TooltipProvider } from "@/components/ui/tooltip"
 
-import appCss from "@workspace/ui/globals.css?url"
 
 const LIGHT_THEME_COLOR = "hsl(0 0% 100%)"
 const DARK_THEME_COLOR = "hsl(240deg 10% 3.92%)"

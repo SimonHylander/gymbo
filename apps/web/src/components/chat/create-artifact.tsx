@@ -5,22 +5,22 @@ import type { Suggestion } from "@/lib/db/schema";
 import type { ChatMessage, CustomUIDataTypes } from "@/lib/types";
 import type { UIArtifact } from "./artifact";
 
-export type ArtifactActionContext<M = any> = {
+export type ArtifactActionContext<TMetadata = any> = {
   content: string;
   handleVersionChange: (type: "next" | "prev" | "toggle" | "latest") => void;
   currentVersionIndex: number;
   isCurrentVersion: boolean;
   mode: "edit" | "diff";
-  metadata: M;
-  setMetadata: Dispatch<SetStateAction<M>>;
+  metadata: TMetadata;
+  setMetadata: Dispatch<SetStateAction<TMetadata>>;
 };
 
-type ArtifactAction<M = any> = {
+type ArtifactAction<TMetadata = any> = {
   icon: ReactNode;
   label?: string;
   description: string;
-  onClick: (context: ArtifactActionContext<M>) => Promise<void> | void;
-  isDisabled?: (context: ArtifactActionContext<M>) => boolean;
+  onClick: (context: ArtifactActionContext<TMetadata>) => Promise<void> | void;
+  isDisabled?: (context: ArtifactActionContext<TMetadata>) => boolean;
 };
 
 export type ArtifactToolbarContext = {
@@ -33,55 +33,55 @@ export type ArtifactToolbarItem = {
   onClick: (context: ArtifactToolbarContext) => void;
 };
 
-type ArtifactContent<M = any> = {
+type ArtifactContent<TMetadata = any> = {
   title: string;
   content: string;
   mode: "edit" | "diff";
   isCurrentVersion: boolean;
   currentVersionIndex: number;
   status: "streaming" | "idle";
-  suggestions: Suggestion[];
+  suggestions: Array<Suggestion>;
   onSaveContent: (updatedContent: string, debounce: boolean) => void;
   isInline: boolean;
   getDocumentContentById: (index: number) => string;
   isLoading: boolean;
-  metadata: M;
-  setMetadata: Dispatch<SetStateAction<M>>;
+  metadata: TMetadata;
+  setMetadata: Dispatch<SetStateAction<TMetadata>>;
 };
 
-type InitializeParameters<M = any> = {
+type InitializeParameters<TMetadata = any> = {
   documentId: string;
-  setMetadata: Dispatch<SetStateAction<M>>;
+  setMetadata: Dispatch<SetStateAction<TMetadata>>;
 };
 
-type ArtifactConfig<T extends string, M = any> = {
+type ArtifactConfig<T extends string, TMetadata = any> = {
   kind: T;
   description: string;
-  content: ComponentType<ArtifactContent<M>>;
-  actions: ArtifactAction<M>[];
-  toolbar: ArtifactToolbarItem[];
-  initialize?: (parameters: InitializeParameters<M>) => void;
+  content: ComponentType<ArtifactContent<TMetadata>>;
+  actions: Array<ArtifactAction<TMetadata>>;
+  toolbar: Array<ArtifactToolbarItem>;
+  initialize?: (parameters: InitializeParameters<TMetadata>) => void;
   onStreamPart: (args: {
-    setMetadata: Dispatch<SetStateAction<M>>;
+    setMetadata: Dispatch<SetStateAction<TMetadata>>;
     setArtifact: Dispatch<SetStateAction<UIArtifact>>;
     streamPart: DataUIPart<CustomUIDataTypes>;
   }) => void;
 };
 
-export class Artifact<T extends string, M = any> {
+export class Artifact<T extends string, TMetadata = any> {
   readonly kind: T;
   readonly description: string;
-  readonly content: ComponentType<ArtifactContent<M>>;
-  readonly actions: ArtifactAction<M>[];
-  readonly toolbar: ArtifactToolbarItem[];
+  readonly content: ComponentType<ArtifactContent<TMetadata>>;
+  readonly actions: Array<ArtifactAction<TMetadata>>;
+  readonly toolbar: Array<ArtifactToolbarItem>;
   readonly initialize?: (parameters: InitializeParameters) => void;
   readonly onStreamPart: (args: {
-    setMetadata: Dispatch<SetStateAction<M>>;
+    setMetadata: Dispatch<SetStateAction<TMetadata>>;
     setArtifact: Dispatch<SetStateAction<UIArtifact>>;
     streamPart: DataUIPart<CustomUIDataTypes>;
   }) => void;
 
-  constructor(config: ArtifactConfig<T, M>) {
+  constructor(config: ArtifactConfig<T, TMetadata>) {
     this.kind = config.kind;
     this.description = config.description;
     this.content = config.content;

@@ -6,7 +6,7 @@ export type JointPainOption = {
   description: string;
 };
 
-export const JOINT_PAIN_OPTIONS: JointPainOption[] = [
+export const JOINT_PAIN_OPTIONS: Array<JointPainOption> = [
   {
     level: 0,
     label: "None",

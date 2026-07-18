@@ -1,12 +1,12 @@
 import { memo } from "react";
 import { Trash2Icon } from "lucide-react";
 
+import type { RoutineEditExerciseViewProps } from "@/features/routines/ui/types";
 import { RepPicker } from "@/components/rep-picker";
 import { RestDurationPicker } from "@/components/rest-duration-picker";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { SetTemplateRowView } from "@/features/routines/ui/set-template-row-view";
-import type { RoutineEditExerciseViewProps } from "@/features/routines/ui/types";
 
 export const RoutineEditExerciseView = memo(function RoutineEditExerciseView({
   exercise,

@@ -19,11 +19,11 @@ export type ChatModel = {
   name: string;
   provider: string;
   description: string;
-  gatewayOrder?: string[];
+  gatewayOrder?: Array<string>;
   reasoningEffort?: "none" | "minimal" | "low" | "medium" | "high";
 };
 
-export const chatModels: ChatModel[] = [
+export const chatModels: Array<ChatModel> = [
   {
     id: "deepseek/deepseek-v3.2",
     name: "DeepSeek V3.2",
@@ -95,7 +95,7 @@ export async function getCapabilities(): Promise<
         const endpoints = json.data?.endpoints ?? [];
         const params = new Set(
           endpoints.flatMap(
-            (e: { supported_parameters?: string[] }) =>
+            (e: { supported_parameters?: Array<string> }) =>
               e.supported_parameters ?? []
           )
         );
@@ -126,7 +126,7 @@ type GatewayModel = {
   id: string;
   name: string;
   type?: string;
-  tags?: string[];
+  tags?: Array<string>;
 };
 
 export type GatewayModelWithCapabilities = ChatModel & {
@@ -134,7 +134,7 @@ export type GatewayModelWithCapabilities = ChatModel & {
 };
 
 export async function getAllGatewayModels(): Promise<
-  GatewayModelWithCapabilities[]
+  Array<GatewayModelWithCapabilities>
 > {
   try {
     const res = await fetch("https://ai-gateway.vercel.sh/v1/models");
@@ -161,7 +161,7 @@ export async function getAllGatewayModels(): Promise<
   }
 }
 
-export function getActiveModels(): ChatModel[] {
+export function getActiveModels(): Array<ChatModel> {
   return chatModels;
 }
 
@@ -175,5 +175,5 @@ export const modelsByProvider = chatModels.reduce(
     acc[model.provider].push(model);
     return acc;
   },
-  {} as Record<string, ChatModel[]>
+  {} as Record<string, Array<ChatModel>>
 );

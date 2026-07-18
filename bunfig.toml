@@ -1,2 +1,7 @@
 [install]
 minimumReleaseAge = 86400
+# Bun 1.3 defaults to isolated installs, which materialize one copy of a package
+# per peer-dependency set. Expo's doctor flags those copies as duplicate native
+# modules, and Metro would bundle each copy separately. Hoisting restores a
+# single instance per version, as Expo requires.
+linker = "hoisted"

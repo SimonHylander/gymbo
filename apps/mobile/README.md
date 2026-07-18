@@ -1,56 +1,54 @@
-# Welcome to your Expo app 👋
+# Gymbo mobile
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
-
-## Get started
-
-1. Install dependencies
-
-   ```bash
-   npm install
-   ```
-
-2. Start the app
-
-   ```bash
-   npx expo start
-   ```
-
-In the output, you'll find options to open the app in a
-
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
-
-You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
-
-## Get a fresh project
-
-When you're ready, run:
+Expo (SDK 57) app targeting **Expo Go**. There is no native build cycle in this
+scope: start the dev server and open the app in Expo Go on a device or simulator.
 
 ```bash
-npm run reset-project
+bun run dev   # expo start
 ```
 
-This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
+The app runs against the development Principal on the linked Convex deployment
+(`EXPO_PUBLIC_CONVEX_URL` in `.env.local`), so no sign-in is required.
 
-### Other setup steps
+## Dependency notes
 
-- To set up ESLint for linting, run `npx expo lint`, or follow our guide on ["Using ESLint and Prettier"](https://docs.expo.dev/guides/using-eslint/)
-- If you'd like to set up unit testing, follow our guide on ["Unit Testing with Jest"](https://docs.expo.dev/develop/unit-testing/)
-- Learn more about the TypeScript setup in this template in our guide on ["Using TypeScript"](https://docs.expo.dev/guides/typescript/)
+- Package versions are reconciled to the SDK with `bunx expo install --fix`.
+  Expo Go ships fixed native modules for its SDK, so JavaScript version drift
+  produces confusing runtime failures rather than tolerable warnings — keep
+  versions matched and verify with `bunx expo-doctor`.
+- `expo-auth-session` is a direct dependency because `@clerk/clerk-expo`
+  requires it as a peer. The auth provider is dormant in this scope, but the
+  library is already in the module graph, so its peer must be present.
+- `expo-dev-client` is deliberately **not** installed. Its presence switches the
+  dev server out of Expo Go mode, which would fight the chosen workflow on
+  every launch.
+- The monorepo installs with bun's hoisted linker (`linker = "hoisted"` in the
+  root `bunfig.toml`). Bun 1.3's default isolated linker materializes one copy
+  of a package per peer-dependency set, which expo-doctor reports as duplicate
+  native modules and Metro would bundle more than once.
 
-## Learn more
+## Native build profiles (eas.json) — unbuildable, on purpose
 
-To learn more about developing your project with Expo, look at the following resources:
+The profiles in `eas.json` are left exactly as written and are **not currently
+buildable**:
 
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
+- The `development` profile sets `developmentClient: true`, but `expo-dev-client`
+  is intentionally absent (see above), so the build has nothing to launch.
+- The `production` profile declares no `EXPO_PUBLIC_CONVEX_URL`, so a production
+  build would have no backend to talk to.
 
-## Join the community
+They are documented rather than edited because no native build is being
+produced in this scope; fixing a profile for a build that is never run would
+only have to be reverted. They become relevant when the authenticated scope
+(Clerk provider, real deployment configuration) is taken on.
 
-Join our community of developers creating universal apps.
+## Known gap: background rest timer is unvalidated
 
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+The rest timer schedules a local notification for rest-end and reconciles from
+timestamps when the app returns to the foreground. All `expo-notifications`
+calls are written defensively and degrade to no-ops, so Expo Go's reduced
+notification support cannot crash the app — but a silently no-op scheduler is
+indistinguishable from a working one until the app is actually backgrounded on
+a device. This path has **not** been validated in this round; the foreground
+timestamp reconciliation is the behavior that is relied upon. Accepted as a
+known gap, not solved.

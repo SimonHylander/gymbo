@@ -2,6 +2,7 @@
 
 import { ChevronUp } from "lucide-react";
 import { useTheme } from "next-themes";
+import type { MockUser } from "@/lib/mock-auth";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -15,7 +16,6 @@ import {
   SidebarMenuItem,
 } from "@/components/ui/sidebar";
 import { guestRegex } from "@/lib/constants";
-import type { MockUser } from "@/lib/mock-auth";
 
 function emailToHue(email: string): number {
   let hash = 0;

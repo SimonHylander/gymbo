@@ -1,16 +1,17 @@
 import { ConvexError } from "convex/values"
 
-import type { Doc, Id } from "../_generated/dataModel"
-import type { MutationCtx, QueryCtx } from "../_generated/server"
 import {
   buildOngoingRoutineIdSet,
   countExercisesForRoutine,
 } from "./routines"
 import {
-  resolveNextRoutineMembership,
-  type ProgramMembership,
+  
+  resolveNextRoutineMembership
 } from "./programNavigation"
 import { validateRepTarget } from "./repTarget"
+import type {ProgramMembership} from "./programNavigation";
+import type { MutationCtx, QueryCtx } from "../_generated/server"
+import type { Doc, Id } from "../_generated/dataModel"
 import type { UserId } from "./principal"
 
 export type RoutineListItem = {
@@ -24,9 +25,9 @@ export type ListWithRoutinesResult = {
   programs: Array<{
     externalId: string
     name: string
-    routines: RoutineListItem[]
+    routines: Array<RoutineListItem>
   }>
-  unassignedRoutines: RoutineListItem[]
+  unassignedRoutines: Array<RoutineListItem>
 }
 
 export type TemplateExercisePayload = {
@@ -43,7 +44,7 @@ export type TemplateExercisePayload = {
 
 export type TemplateUpdatePayload = {
   name: string
-  exercises: TemplateExercisePayload[]
+  exercises: Array<TemplateExercisePayload>
 }
 
 export function validateTemplatePayload(payload: TemplateUpdatePayload): void {
@@ -167,7 +168,7 @@ async function resolveNextRoutineForRoutine(
     )
     .collect()
 
-  const memberships: ProgramMembership[] = []
+  const memberships: Array<ProgramMembership> = []
   for (const membership of programMemberships) {
     const memberRoutine = await ctx.db.get("routines", membership.routineId)
     if (!memberRoutine) {

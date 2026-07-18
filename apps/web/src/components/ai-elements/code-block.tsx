@@ -1,6 +1,18 @@
 "use client";
 
-import type { ComponentProps, CSSProperties, HTMLAttributes } from "react";
+import { CheckIcon, CopyIcon } from "lucide-react";
+import {
+  createContext,
+  memo,
+  useCallback,
+  useContext,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
+import { createHighlighter } from "shiki";
+import type { ComponentProps, HTMLAttributes } from "react";
 import type {
   BundledLanguage,
   BundledTheme,
@@ -17,25 +29,13 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { cn } from "@/lib/utils";
-import { CheckIcon, CopyIcon } from "lucide-react";
-import {
-  createContext,
-  memo,
-  useCallback,
-  useContext,
-  useEffect,
-  useMemo,
-  useRef,
-  useState,
-} from "react";
-import { createHighlighter } from "shiki";
 
 // Shiki uses bitflags for font styles: 1=italic, 2=bold, 4=underline
 // biome-ignore lint/suspicious/noBitwiseOperators: shiki bitflag check
-// eslint-disable-next-line no-bitwise -- shiki bitflag check
+ 
 const isItalic = (fontStyle: number | undefined) => fontStyle && fontStyle & 1;
 // biome-ignore lint/suspicious/noBitwiseOperators: shiki bitflag check
-// eslint-disable-next-line no-bitwise -- shiki bitflag check
+ 
 // oxlint-disable-next-line eslint(no-bitwise)
 const isBold = (fontStyle: number | undefined) => fontStyle && fontStyle & 2;
 const isUnderline = (fontStyle: number | undefined) =>
@@ -49,11 +49,11 @@ interface KeyedToken {
   key: string;
 }
 interface KeyedLine {
-  tokens: KeyedToken[];
+  tokens: Array<KeyedToken>;
   key: string;
 }
 
-const addKeysToTokens = (lines: ThemedToken[][]): KeyedLine[] =>
+const addKeysToTokens = (lines: Array<Array<ThemedToken>>): Array<KeyedLine> =>
   lines.map((line, lineIdx) => ({
     key: `line-${lineIdx}`,
     tokens: line.map((token, tokenIdx) => ({
@@ -74,7 +74,7 @@ const TokenSpan = ({ token }: { token: ThemedToken }) => (
         fontWeight: isBold(token.fontStyle) ? "bold" : undefined,
         textDecoration: isUnderline(token.fontStyle) ? "underline" : undefined,
         ...token.htmlStyle,
-      } as CSSProperties
+      }
     }
   >
     {token.content}
@@ -106,7 +106,7 @@ type CodeBlockProps = HTMLAttributes<HTMLDivElement> & {
 };
 
 interface TokenizedCode {
-  tokens: ThemedToken[][];
+  tokens: Array<Array<ThemedToken>>;
   fg: string;
   bg: string;
 }
