@@ -107,8 +107,10 @@ function WorkoutSession() {
         text: "Finish",
         style: "destructive",
         onPress: () => {
-          void stopWorkout().then(() => {
-            router.back()
+          void stopWorkout().then((completed) => {
+            if (completed) {
+              router.back()
+            }
           })
         },
       },

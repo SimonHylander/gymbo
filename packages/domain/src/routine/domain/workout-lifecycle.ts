@@ -1,6 +1,6 @@
+import { hasWorkoutProgress } from "./session-selectors";
 import type { StoreApi } from "zustand";
 
-import { hasWorkoutProgress } from "./session-selectors";
 import type {
   ExerciseLogState,
   WorkoutStatus,
@@ -69,7 +69,8 @@ export function createWorkoutLifecycle(
 
       if (!hasExercises) {
         if (state.workoutStatus === "ongoing") {
-          await state.stopWorkout();
+          const completed = await state.stopWorkout();
+          if (!completed) return;
         }
         if (navigateAfter) {
           await deps.navigateAfterFinish();
@@ -86,7 +87,11 @@ export function createWorkoutLifecycle(
       if (!state) return;
 
       state.closeJointPainCheckIn();
-      await state.stopWorkout();
+      const completed = await state.stopWorkout();
+      if (!completed) {
+        navigateAfterJointPain = false;
+        return;
+      }
 
       if (navigateAfterJointPain) {
         navigateAfterJointPain = false;

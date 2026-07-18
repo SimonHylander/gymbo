@@ -1,14 +1,14 @@
 /**
- * Run: cd apps/web && bun run test src/features/routine/domain/workout-lifecycle.test.ts
+ * Run: cd packages/domain && bun run test src/routine/domain/workout-lifecycle.test.ts
  */
 import { describe, expect, it, vi } from "vitest";
-import type { StoreApi } from "zustand";
-
-import type { RoutineSessionStore } from "../store/create-routine-session-store";
 import {
   createWorkoutLifecycle,
   shouldConfirmLeave,
 } from "./workout-lifecycle";
+import type { StoreApi } from "zustand";
+
+import type { RoutineSessionStore } from "../store/create-routine-session-store";
 import type {
   Exercise,
   ExerciseLogState,
@@ -53,7 +53,7 @@ function createMockStore(
 } {
   const actions: MockStoreActions = {
     startWorkout: vi.fn().mockResolvedValue(undefined),
-    stopWorkout: vi.fn().mockResolvedValue(undefined),
+    stopWorkout: vi.fn().mockResolvedValue(true),
     openJointPainCheckIn: vi.fn(),
     closeJointPainCheckIn: vi.fn(),
   };
@@ -224,6 +224,53 @@ describe("createWorkoutLifecycle", () => {
     expect(actions.closeJointPainCheckIn).toHaveBeenCalledOnce();
     expect(actions.stopWorkout).toHaveBeenCalledOnce();
     expect(navigateAfterFinish).toHaveBeenCalledOnce();
+  });
+
+  it("requestFinish with empty exercises and navigateAfter stays when stop fails", async () => {
+    const { store, actions } = createMockStore({
+      routine: routineWithNoExercises,
+      workoutStatus: "ongoing",
+      workoutId: "workout-1" as Id<"workouts">,
+    });
+    actions.stopWorkout.mockResolvedValue(false);
+    const { lifecycle, navigateAfterFinish } = createLifecycle(store);
+
+    await lifecycle.requestFinish(true);
+
+    expect(actions.stopWorkout).toHaveBeenCalledOnce();
+    expect(navigateAfterFinish).not.toHaveBeenCalled();
+  });
+
+  it("completeJointPainCheckIn does not navigate when stop fails", async () => {
+    const { store, actions } = createMockStore({
+      workoutStatus: "ongoing",
+      workoutId: "workout-1" as Id<"workouts">,
+    });
+    actions.stopWorkout.mockResolvedValue(false);
+    const { lifecycle, navigateAfterFinish } = createLifecycle(store);
+
+    await lifecycle.requestFinish(true);
+    await lifecycle.completeJointPainCheckIn();
+
+    expect(actions.closeJointPainCheckIn).toHaveBeenCalledOnce();
+    expect(actions.stopWorkout).toHaveBeenCalledOnce();
+    expect(navigateAfterFinish).not.toHaveBeenCalled();
+  });
+
+  it("failed completeJointPainCheckIn clears the navigate flag for the next attempt", async () => {
+    const { store, actions } = createMockStore({
+      workoutStatus: "ongoing",
+      workoutId: "workout-1" as Id<"workouts">,
+    });
+    actions.stopWorkout.mockResolvedValueOnce(false);
+    const { lifecycle, navigateAfterFinish } = createLifecycle(store);
+
+    await lifecycle.requestFinish(true);
+    await lifecycle.completeJointPainCheckIn();
+    await lifecycle.completeJointPainCheckIn();
+
+    expect(actions.stopWorkout).toHaveBeenCalledTimes(2);
+    expect(navigateAfterFinish).not.toHaveBeenCalled();
   });
 
   it("cancelJointPainCheckIn clears navigate flag", async () => {
