@@ -5,5 +5,6 @@ export default defineConfig({
     environment: "edge-runtime",
     server: { deps: { inline: ["convex-test"] } },
     pool: "forks",
+    env: { AUTH_PROVIDER: "dev" },
   },
 })

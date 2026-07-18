@@ -25,10 +25,24 @@ input):
   configured in `packages/backend/convex/auth.config.ts` (`CLERK_JWT_ISSUER_DOMAIN` deployment env
   var, JWT template named `convex`). Unauthenticated calls are rejected. Use on deployments
   serving real users.
-- **Dev adapter** (default when `AUTH_PROVIDER` is unset): honors a verified or test-injected
-  identity when present, otherwise falls back to `DEV_USER_ID` (`"dev"`) from
+- **Dev adapter** (`AUTH_PROVIDER=dev`): honors a verified or test-injected identity when
+  present, otherwise falls back to `DEV_USER_ID` (`"dev"`) from
   `packages/backend/convex/lib/devIdentity.ts`. This preserves what the old ADR protected — no
   Clerk tokens needed to run locally, seed, or test.
+
+**Fail-closed since 2026-07-18** (spec 015): `AUTH_PROVIDER` must be explicitly `dev` or `clerk`;
+any other value — unset included, near-miss typos included — raises at resolution instead of
+falling back to the dev adapter. The trade-off is developer convenience against fail-safe
+defaults. The old default-open switch let a deployment provisioned without the variable come up
+looking healthy while attributing every caller's data to the single `"dev"` principal, and no
+test could catch it: cross-user isolation tests pass trivially when every caller resolves to the
+same user. A refused request is loud, immediate, and cheap to fix; a silently shared identity is
+quiet, compounding, and discovered only after data has been misattributed — which is why the
+silent-fallback failure mode was judged worse. The dev principal remains the local default by
+explicit declaration rather than by omission: the linked dev deployment carries
+`AUTH_PROVIDER=dev` (`bunx convex env set AUTH_PROVIDER dev` from `packages/backend`), the
+backend vitest config declares it for function tests (which run with an empty environment), and
+the example environment files document the variable.
 
 All reads and writes are scoped per-principal through the `by_user` / `by_user_and_external_id` /
 `by_user_and_status` indexes; foreign rows resolve as `NOT_FOUND`/`null`, asserted by the

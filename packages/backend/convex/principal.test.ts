@@ -1,8 +1,7 @@
 import { convexTest } from "convex-test"
-import { describe, expect, it, vi, afterEach } from "vitest"
+import { afterEach, describe, expect, it, vi } from "vitest"
 
 import { api } from "./_generated/api"
-import type { Id } from "./_generated/dataModel"
 import schema from "./schema"
 
 const modules = import.meta.glob("./**/*.ts")
@@ -90,7 +89,7 @@ describe("principal seam — cross-user isolation", () => {
       .mutation(api.workouts.start, { routineExternalId })
     const workoutExerciseId = Object.values(
       session.workoutExerciseIds
-    )[0] as Id<"workoutExercises">
+    )[0]
 
     const foreignSession = await t
       .withIdentity(asUserB)
@@ -140,7 +139,7 @@ describe("principal seam — cross-user isolation", () => {
       .mutation(api.workouts.start, { routineExternalId })
     const workoutExerciseId = Object.values(
       session.workoutExerciseIds
-    )[0] as Id<"workoutExercises">
+    )[0]
 
     await t.withIdentity(asUserA).mutation(api.exerciseBiofeedback.recordJointPain, {
       workoutId: session.workoutId,
@@ -156,6 +155,26 @@ describe("principal seam — cross-user isolation", () => {
       expect(feedback).toHaveLength(1)
       expect(feedback[0]?.userId).toBe("user_a")
     })
+  })
+})
+
+describe("principal seam — fail-closed configuration", () => {
+  it("raises when AUTH_PROVIDER is unset", async () => {
+    vi.stubEnv("AUTH_PROVIDER", undefined)
+    const t = setup()
+
+    await expect(
+      t.query(api.routines.getByExternalId, { externalId: "dev-routine" })
+    ).rejects.toThrow(/AUTH_PROVIDER must be "dev" or "clerk"/)
+  })
+
+  it("raises on a near-miss typo instead of falling back", async () => {
+    vi.stubEnv("AUTH_PROVIDER", "Clerk")
+    const t = setup()
+
+    await expect(
+      t.query(api.routines.getByExternalId, { externalId: "dev-routine" })
+    ).rejects.toThrow(/AUTH_PROVIDER must be "dev" or "clerk"/)
   })
 })
 
