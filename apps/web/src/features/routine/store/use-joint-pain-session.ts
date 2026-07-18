@@ -1,32 +1,33 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react"
 
 import {
-  
-  
-  
   createJointPainSessionState,
   prefillSavedLevels,
   reduceJointPainSession,
-  selectJointPainViewModel
-} from "@workspace/domain/routine/domain/joint-pain-session";
-import type {ExistingJointPainFeedback, JointPainSessionConfig, JointPainSessionEvent} from "@workspace/domain/routine/domain/joint-pain-session";
-import type { WorkoutMutations } from "@workspace/domain/routine/sync/workout-mutations";
-import type { JointPainLevel } from "@workspace/domain/routine/domain/joint-pain";
-import type { Exercise } from "@workspace/domain/routine/domain/types";
-import type { Id } from "@workspace/backend/convex/_generated/dataModel";
-import { toast } from "@/components/chat/toast";
+  selectJointPainViewModel,
+} from "@workspace/domain/routine/domain/joint-pain-session"
+import type {
+  ExistingJointPainFeedback,
+  JointPainSessionConfig,
+  JointPainSessionEvent,
+} from "@workspace/domain/routine/domain/joint-pain-session"
+import type { WorkoutMutations } from "@workspace/domain/routine/sync/workout-mutations"
+import type { JointPainLevel } from "@workspace/domain/routine/domain/joint-pain"
+import type { Exercise } from "@workspace/domain/routine/domain/types"
+import type { Id } from "@workspace/backend/convex/_generated/dataModel"
+import { toast } from "@/components/chat/toast"
 
 type UseJointPainSessionOptions = {
-  open: boolean;
-  targetExerciseId: string | null;
-  workoutId: Id<"workouts"> | null;
-  exercises: Array<Exercise>;
-  workoutExerciseIds: Record<string, Id<"workoutExercises">>;
-  existingFeedback: Array<ExistingJointPainFeedback> | undefined;
-  recordJointPain: WorkoutMutations["recordJointPain"];
-  onComplete: () => Promise<void>;
-  onSingleExerciseSaved: (exerciseId: string) => void;
-};
+  open: boolean
+  targetExerciseId: string | null
+  workoutId: Id<"workouts"> | null
+  exercises: Array<Exercise>
+  workoutExerciseIds: Record<string, Id<"workoutExercises">>
+  existingFeedback: Array<ExistingJointPainFeedback> | undefined
+  recordJointPain: WorkoutMutations["recordJointPain"]
+  onComplete: () => Promise<void>
+  onSingleExerciseSaved: (exerciseId: string) => void
+}
 
 export function useJointPainSession({
   open,
@@ -39,18 +40,18 @@ export function useJointPainSession({
   onComplete,
   onSingleExerciseSaved,
 }: UseJointPainSessionOptions) {
-  const [state, setState] = useState(createJointPainSessionState);
-  const stateRef = useRef(state);
-  stateRef.current = state;
+  const [state, setState] = useState(createJointPainSessionState)
+  const stateRef = useRef(state)
+  stateRef.current = state
 
-  const prevOpenRef = useRef(open);
-  const prevFeedbackRef = useRef(existingFeedback);
+  const prevOpenRef = useRef(open)
+  const prevFeedbackRef = useRef(existingFeedback)
 
   const dispatch = useCallback((event: JointPainSessionEvent) => {
-    const result = reduceJointPainSession(stateRef.current, event);
-    setState(result.state);
-    return result.effects;
-  }, []);
+    const result = reduceJointPainSession(stateRef.current, event)
+    setState(result.state)
+    return result.effects
+  }, [])
 
   const workoutExerciseIdStrings = useMemo(
     () =>
@@ -61,7 +62,7 @@ export function useJointPainSession({
         ])
       ),
     [workoutExerciseIds]
-  );
+  )
 
   const config: JointPainSessionConfig = useMemo(
     () => ({
@@ -80,25 +81,25 @@ export function useJointPainSession({
       workoutExerciseIdStrings,
       existingFeedback,
     ]
-  );
+  )
 
   const viewModel = useMemo(
     () => selectJointPainViewModel(config, state),
     [config, state]
-  );
+  )
 
   useEffect(() => {
     if (open && !prevOpenRef.current) {
-      dispatch({ type: "opened" });
+      dispatch({ type: "opened" })
     } else if (!open && prevOpenRef.current) {
-      dispatch({ type: "closed" });
+      dispatch({ type: "closed" })
     }
-    prevOpenRef.current = open;
-  }, [open, dispatch]);
+    prevOpenRef.current = open
+  }, [open, dispatch])
 
   useEffect(() => {
-    if (!open || existingFeedback === undefined) return;
-    if (prevFeedbackRef.current === existingFeedback) return;
+    if (!open || existingFeedback === undefined) return
+    if (prevFeedbackRef.current === existingFeedback) return
 
     dispatch({
       type: "feedbackLoaded",
@@ -107,54 +108,57 @@ export function useJointPainSession({
         workoutExerciseIdStrings,
         existingFeedback
       ),
-    });
-    prevFeedbackRef.current = existingFeedback;
-  }, [open, existingFeedback, exercises, workoutExerciseIdStrings, dispatch]);
+    })
+    prevFeedbackRef.current = existingFeedback
+  }, [open, existingFeedback, exercises, workoutExerciseIdStrings, dispatch])
 
   useEffect(() => {
-    if (!viewModel.shouldAutoComplete) return;
+    if (!viewModel.shouldAutoComplete) return
 
-    dispatch({ type: "autoCompleteAcknowledged" });
-    void onComplete();
-  }, [viewModel.shouldAutoComplete, onComplete, dispatch]);
+    dispatch({ type: "autoCompleteAcknowledged" })
+    void onComplete()
+  }, [viewModel.shouldAutoComplete, onComplete, dispatch])
 
   const save = useCallback(
     async (level: JointPainLevel) => {
-      const currentExercise = viewModel.currentExercise;
-      if (!workoutId || !currentExercise) return;
+      const currentExercise = viewModel.currentExercise
+      if (!workoutId || !currentExercise) return
 
-      const workoutExerciseId = workoutExerciseIds[currentExercise.id];
+      const workoutExerciseId = workoutExerciseIds[currentExercise.id]
       if (!workoutExerciseId) {
-        toast({ type: "error", description: "Exercise not found in workout" });
-        return;
+        toast({ type: "error", description: "Exercise not found in workout" })
+        return
       }
 
-      dispatch({ type: "saveStarted" });
+      dispatch({ type: "saveStarted" })
 
       try {
         await recordJointPain({
           workoutId,
           workoutExerciseId,
           jointPainLevel: level,
-        });
+        })
 
         const effects = dispatch({
           type: "saveSucceeded",
           exerciseId: currentExercise.id,
           level,
           config,
-        });
+        })
 
         for (const effect of effects) {
           if (effect.type === "complete") {
-            await onComplete();
+            await onComplete()
           } else {
-            onSingleExerciseSaved(effect.exerciseId);
+            onSingleExerciseSaved(effect.exerciseId)
           }
         }
       } catch {
-        dispatch({ type: "saveFailed" });
-        toast({ type: "error", description: "Failed to save joint pain rating" });
+        dispatch({ type: "saveFailed" })
+        toast({
+          type: "error",
+          description: "Failed to save joint pain rating",
+        })
       }
     },
     [
@@ -167,10 +171,10 @@ export function useJointPainSession({
       onComplete,
       onSingleExerciseSaved,
     ]
-  );
+  )
 
   return {
     ...viewModel,
     save,
-  };
+  }
 }

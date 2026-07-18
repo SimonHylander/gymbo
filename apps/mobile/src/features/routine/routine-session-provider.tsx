@@ -78,11 +78,11 @@ export function RoutineSessionProvider({
   useEffect(() => {
     const subscription = AppState.addEventListener("change", (state) => {
       if (state === "background" || state === "inactive") {
-        storeRef.current?.getState().flushPendingSync()
+        storeRef.current?.getState().flushInFlightSync()
       }
     })
     return () => {
-      storeRef.current?.getState().flushPendingSync()
+      storeRef.current?.getState().flushInFlightSync()
       subscription.remove()
     }
   }, [])

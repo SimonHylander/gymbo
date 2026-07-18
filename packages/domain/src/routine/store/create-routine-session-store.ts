@@ -1,4 +1,4 @@
-import {  createStore } from "zustand";
+import { createStore } from "zustand"
 
 import {
   addSet,
@@ -10,31 +10,29 @@ import {
   markExerciseComplete,
   toggleSetComplete,
   updateSetField,
-} from "../domain/exercise-log";
+} from "../domain/exercise-log"
 import {
   openJointPainForExercise,
   openJointPainWizard,
   shouldPromptJointPainAfterExerciseComplete,
-} from "../domain/joint-pain-session";
-import { getRestDuration } from "../domain/rest-timer";
+} from "../domain/joint-pain-session"
+import { getRestDuration } from "../domain/rest-timer"
 import {
-  
   adjustRestTimer as adjustRestTimerState,
-  resolveRestTimerAfterSetToggle
-} from "../domain/rest-timer-session";
+  resolveRestTimerAfterSetToggle,
+} from "../domain/rest-timer-session"
 import {
   getExerciseIndex,
   getNextIncompleteId,
   getSwitchDirection,
-} from "../domain/session-selectors";
-import {
-  
-  
-  createWorkoutSessionSync
-} from "../sync/workout-session-sync";
-import type {SyncState, WorkoutSessionSync} from "../sync/workout-session-sync";
-import type {RestTimerState} from "../domain/rest-timer-session";
-import type {StoreApi} from "zustand";
+} from "../domain/session-selectors"
+import { createWorkoutSessionSync } from "../sync/workout-session-sync"
+import type {
+  SyncState,
+  WorkoutSessionSync,
+} from "../sync/workout-session-sync"
+import type { RestTimerState } from "../domain/rest-timer-session"
+import type { StoreApi } from "zustand"
 import type {
   ExerciseLogState,
   Routine,
@@ -42,67 +40,67 @@ import type {
   UserNote,
   WorkoutSessionSnapshot,
   WorkoutStatus,
-} from "../domain/types";
-import type { WorkoutMutations } from "../sync/workout-mutations";
-import type { Id } from "@workspace/backend/convex/_generated/dataModel";
+} from "../domain/types"
+import type { WorkoutMutations } from "../sync/workout-mutations"
+import type { Id } from "@workspace/backend/convex/_generated/dataModel"
 
-export type { SyncState };
+export type { SyncState }
 
 function genId() {
-  return Math.random().toString(36).slice(2);
+  return Math.random().toString(36).slice(2)
 }
 
-export type { RestTimerState };
+export type { RestTimerState }
 
 export type RoutineSessionStore = {
-  routine: Routine;
-  exerciseLogs: Record<string, ExerciseLogState>;
-  activeExerciseId: string;
-  switchDirection: -1 | 0 | 1;
-  notes: Array<UserNote>;
-  noteDraft: string;
-  workoutId: Id<"workouts"> | null;
-  workoutExerciseIds: Record<string, Id<"workoutExercises">>;
-  workoutStatus: WorkoutStatus;
-  workoutStartedAt: number | null;
-  workoutEndedAt: number | null;
-  isStartingWorkout: boolean;
-  isStoppingWorkout: boolean;
-  syncState: SyncState;
-  restTimer: RestTimerState | null;
-  jointPainCheckInOpen: boolean;
+  routine: Routine
+  exerciseLogs: Record<string, ExerciseLogState>
+  activeExerciseId: string
+  switchDirection: -1 | 0 | 1
+  notes: Array<UserNote>
+  noteDraft: string
+  workoutId: Id<"workouts"> | null
+  workoutExerciseIds: Record<string, Id<"workoutExercises">>
+  workoutStatus: WorkoutStatus
+  workoutStartedAt: number | null
+  workoutEndedAt: number | null
+  isStartingWorkout: boolean
+  isStoppingWorkout: boolean
+  syncState: SyncState
+  restTimer: RestTimerState | null
+  jointPainCheckInOpen: boolean
   /** When set, check-in is for one exercise just completed. When null, wizard walks all exercises. */
-  jointPainCheckInExerciseId: string | null;
+  jointPainCheckInExerciseId: string | null
 
-  selectExercise: (exerciseId: string) => void;
-  goToPreviousExercise: () => void;
-  goToNextExercise: () => void;
+  selectExercise: (exerciseId: string) => void
+  goToPreviousExercise: () => void
+  goToNextExercise: () => void
   updateSet: (
     exerciseId: string,
     setIdx: number,
     field: SetField,
     value: string
-  ) => void;
-  applyPrevious: (exerciseId: string, setIdx: number) => void;
-  addSet: (exerciseId: string) => void;
-  deleteSet: (exerciseId: string, setIdx: number) => void;
-  toggleSetComplete: (exerciseId: string, setIdx: number) => void;
-  skipRestTimer: () => void;
-  adjustRestTimer: (deltaSeconds: number) => void;
-  sendNote: () => void;
-  setNoteDraft: (text: string) => void;
-  startWorkout: () => Promise<void>;
-  stopWorkout: () => Promise<boolean>;
-  openJointPainCheckIn: () => void;
-  openJointPainCheckInForExercise: (exerciseId: string) => void;
-  closeJointPainCheckIn: () => void;
-  advanceAfterJointPainCheckIn: (exerciseId: string) => void;
-  flushPendingSync: () => void;
-};
+  ) => void
+  applyPrevious: (exerciseId: string, setIdx: number) => void
+  addSet: (exerciseId: string) => void
+  deleteSet: (exerciseId: string, setIdx: number) => void
+  toggleSetComplete: (exerciseId: string, setIdx: number) => void
+  skipRestTimer: () => void
+  adjustRestTimer: (deltaSeconds: number) => void
+  sendNote: () => void
+  setNoteDraft: (text: string) => void
+  startWorkout: () => Promise<void>
+  stopWorkout: () => Promise<boolean>
+  openJointPainCheckIn: () => void
+  openJointPainCheckInForExercise: (exerciseId: string) => void
+  closeJointPainCheckIn: () => void
+  advanceAfterJointPainCheckIn: (exerciseId: string) => void
+  flushInFlightSync: () => void
+}
 
 export type WorkoutSyncRef = {
-  current: WorkoutMutations | null;
-};
+  current: WorkoutMutations | null
+}
 
 function hydrateFromSession(
   session: WorkoutSessionSnapshot
@@ -129,13 +127,13 @@ function hydrateFromSession(
     workoutEndedAt: session.endedAt,
     exerciseLogs: session.exerciseLogs,
     activeExerciseId: session.activeExerciseExternalId,
-  };
+  }
 }
 
 export type RoutineSessionStoreOptions = {
-  onSyncError?: (message: string) => void;
-  onWorkoutAutoStarted?: () => void;
-};
+  onSyncError?: (message: string) => void
+  onWorkoutAutoStarted?: () => void
+}
 
 export function createRoutineSessionStore(
   routine: Routine,
@@ -146,57 +144,61 @@ export function createRoutineSessionStore(
   const { onSyncError, onWorkoutAutoStarted } =
     typeof options === "function"
       ? { onSyncError: options, onWorkoutAutoStarted: undefined }
-      : (options ?? {});
+      : (options ?? {})
 
   const initialHydration = ongoingSession
     ? hydrateFromSession(ongoingSession)
-    : null;
+    : null
 
-  let sessionSync: WorkoutSessionSync;
+  let sessionSync: WorkoutSessionSync
 
   const switchExercise = (
     exerciseId: string,
     get: () => RoutineSessionStore,
     set: (partial: Partial<RoutineSessionStore>) => void
   ) => {
-    const state = get();
-    if (exerciseId === state.activeExerciseId) return;
+    const state = get()
+    if (exerciseId === state.activeExerciseId) return
 
-    const previousExerciseId = state.activeExerciseId;
-    const currentIndex = getExerciseIndex(state.routine, previousExerciseId);
+    const previousExerciseId = state.activeExerciseId
+    const currentIndex = getExerciseIndex(state.routine, previousExerciseId)
 
     set({
       activeExerciseId: exerciseId,
-      switchDirection: getSwitchDirection(state.routine, currentIndex, exerciseId),
-    });
+      switchDirection: getSwitchDirection(
+        state.routine,
+        currentIndex,
+        exerciseId
+      ),
+    })
 
-    sessionSync.onExerciseSwitch(previousExerciseId, exerciseId);
-  };
+    sessionSync.onExerciseSwitch(previousExerciseId, exerciseId)
+  }
 
   const promptJointPainAfterExerciseComplete = (
     exerciseId: string,
     get: () => RoutineSessionStore,
     set: (partial: Partial<RoutineSessionStore>) => void
   ) => {
-    const state = get();
+    const state = get()
     if (
       !shouldPromptJointPainAfterExerciseComplete({
         jointPainCheckInOpen: state.jointPainCheckInOpen,
         workoutStatus: state.workoutStatus,
       })
     ) {
-      return;
+      return
     }
 
     void sessionSync.ensureWorkoutStarted().then(() => {
-      const current = get();
+      const current = get()
       if (current.workoutStatus !== "ongoing" || !current.workoutId) {
-        return;
+        return
       }
 
-      set(openJointPainForExercise(exerciseId));
-    });
-  };
+      set(openJointPainForExercise(exerciseId))
+    })
+  }
 
   return createStore<RoutineSessionStore>((set, get) => {
     if (!sessionSync) {
@@ -208,7 +210,7 @@ export function createRoutineSessionStore(
         hydrateFromSession,
         onError: onSyncError,
         onWorkoutAutoStarted,
-      });
+      })
     }
 
     return {
@@ -236,26 +238,26 @@ export function createRoutineSessionStore(
       selectExercise: (exerciseId) => switchExercise(exerciseId, get, set),
 
       goToPreviousExercise: () => {
-        const state = get();
+        const state = get()
         const currentIndex = getExerciseIndex(
           state.routine,
           state.activeExerciseId
-        );
-        const previousExercise = state.routine.exercises[currentIndex - 1];
+        )
+        const previousExercise = state.routine.exercises[currentIndex - 1]
         if (previousExercise) {
-          switchExercise(previousExercise.id, get, set);
+          switchExercise(previousExercise.id, get, set)
         }
       },
 
       goToNextExercise: () => {
-        const state = get();
+        const state = get()
         const currentIndex = getExerciseIndex(
           state.routine,
           state.activeExerciseId
-        );
-        const nextExercise = state.routine.exercises[currentIndex + 1];
+        )
+        const nextExercise = state.routine.exercises[currentIndex + 1]
         if (nextExercise) {
-          switchExercise(nextExercise.id, get, set);
+          switchExercise(nextExercise.id, get, set)
         }
       },
 
@@ -270,14 +272,14 @@ export function createRoutineSessionStore(
               value
             ),
           },
-        }));
+        }))
 
-        const persist = () => sessionSync.persistLog(exerciseId, true);
+        const persist = () => sessionSync.persistLog(exerciseId, true)
 
         if (value.trim()) {
-          void sessionSync.ensureWorkoutStarted().then(persist);
+          void sessionSync.ensureWorkoutStarted().then(persist)
         } else {
-          persist();
+          persist()
         }
       },
 
@@ -290,9 +292,9 @@ export function createRoutineSessionStore(
               setIdx
             ),
           },
-        }));
+        }))
 
-        sessionSync.applyPrevious(exerciseId, setIdx);
+        sessionSync.applyPrevious(exerciseId, setIdx)
       },
 
       addSet: (exerciseId) => {
@@ -301,9 +303,9 @@ export function createRoutineSessionStore(
             ...state.exerciseLogs,
             [exerciseId]: addSet(state.exerciseLogs[exerciseId]),
           },
-        }));
+        }))
 
-        sessionSync.addSet(exerciseId);
+        sessionSync.addSet(exerciseId)
       },
 
       deleteSet: (exerciseId, setIdx) => {
@@ -312,26 +314,26 @@ export function createRoutineSessionStore(
             ...state.exerciseLogs,
             [exerciseId]: deleteSet(state.exerciseLogs[exerciseId], setIdx),
           },
-        }));
+        }))
 
-        sessionSync.removeSet(exerciseId, setIdx);
+        sessionSync.removeSet(exerciseId, setIdx)
       },
 
       toggleSetComplete: (exerciseId, setIdx) => {
-        const state = get();
-        const log = state.exerciseLogs[exerciseId];
-        const setEntry = log?.sets[setIdx];
-        const wasCompleted = setEntry?.status === "completed";
+        const state = get()
+        const log = state.exerciseLogs[exerciseId]
+        const setEntry = log?.sets[setIdx]
+        const wasCompleted = setEntry?.status === "completed"
 
         const applyToggle = () => {
-          const currentState = get();
-          const currentLog = currentState.exerciseLogs[exerciseId];
-          const wasExerciseComplete = isExerciseComplete(currentLog);
+          const currentState = get()
+          const currentLog = currentState.exerciseLogs[exerciseId]
+          const wasExerciseComplete = isExerciseComplete(currentLog)
 
-          let updatedLog = toggleSetComplete(currentLog, setIdx);
+          let updatedLog = toggleSetComplete(currentLog, setIdx)
 
           if (isExerciseComplete(updatedLog) && !wasExerciseComplete) {
-            updatedLog = markExerciseComplete(updatedLog);
+            updatedLog = markExerciseComplete(updatedLog)
           }
 
           set((current) => ({
@@ -339,11 +341,11 @@ export function createRoutineSessionStore(
               ...current.exerciseLogs,
               [exerciseId]: updatedLog,
             },
-          }));
+          }))
 
           const exercise = currentState.routine.exercises.find(
             (entry) => entry.id === exerciseId
-          );
+          )
           const restTimer = resolveRestTimerAfterSetToggle({
             timer: get().restTimer,
             exerciseId,
@@ -352,31 +354,31 @@ export function createRoutineSessionStore(
             canStartRest: Boolean(setEntry && canCompleteSet(setEntry)),
             restSeconds: getRestDuration(exercise?.restSeconds),
             now: Date.now(),
-          });
+          })
 
           if (restTimer !== get().restTimer) {
-            set({ restTimer });
+            set({ restTimer })
           }
 
-          sessionSync.persistLog(exerciseId, false);
+          sessionSync.persistLog(exerciseId, false)
 
           if (isExerciseComplete(updatedLog) && !wasExerciseComplete) {
-            promptJointPainAfterExerciseComplete(exerciseId, get, set);
+            promptJointPainAfterExerciseComplete(exerciseId, get, set)
           }
-        };
+        }
 
         if (!wasCompleted) {
-          void sessionSync.ensureWorkoutStarted().then(applyToggle);
+          void sessionSync.ensureWorkoutStarted().then(applyToggle)
         } else {
-          applyToggle();
+          applyToggle()
         }
       },
 
       skipRestTimer: () => set({ restTimer: null }),
 
       adjustRestTimer: (deltaSeconds) => {
-        const state = get();
-        if (!state.restTimer) return;
+        const state = get()
+        if (!state.restTimer) return
 
         set({
           restTimer: adjustRestTimerState(
@@ -384,36 +386,36 @@ export function createRoutineSessionStore(
             deltaSeconds,
             Date.now()
           ),
-        });
+        })
       },
 
       sendNote: () => {
-        const text = get().noteDraft.trim();
-        if (!text) return;
+        const text = get().noteDraft.trim()
+        if (!text) return
 
         set((state) => ({
           notes: [...state.notes, { id: genId(), text }],
           noteDraft: "",
-        }));
+        }))
       },
 
       setNoteDraft: (text) => set({ noteDraft: text }),
 
       startWorkout: () => sessionSync.startWorkout(),
 
-      flushPendingSync: () => {
-        const state = get();
-        if (state.workoutStatus !== "ongoing") return;
-        void sessionSync.flushAllLogs();
+      flushInFlightSync: () => {
+        const state = get()
+        if (state.workoutStatus !== "ongoing") return
+        void sessionSync.flushAllLogs()
       },
 
       stopWorkout: async () => {
-        set({ restTimer: null });
+        set({ restTimer: null })
         try {
-          return await sessionSync.stopWorkout();
+          return await sessionSync.stopWorkout()
         } catch {
           // The failure message is surfaced via onSyncError; this reports the outcome.
-          return false;
+          return false
         }
       },
 
@@ -426,16 +428,16 @@ export function createRoutineSessionStore(
         set({ jointPainCheckInOpen: false, jointPainCheckInExerciseId: null }),
 
       advanceAfterJointPainCheckIn: (exerciseId) => {
-        set({ jointPainCheckInOpen: false, jointPainCheckInExerciseId: null });
+        set({ jointPainCheckInOpen: false, jointPainCheckInExerciseId: null })
 
-        const state = get();
-        const nextId = getNextIncompleteId(state.routine, state.exerciseLogs);
+        const state = get()
+        const nextId = getNextIncompleteId(state.routine, state.exerciseLogs)
         if (nextId && nextId !== exerciseId) {
-          switchExercise(nextId, get, set);
+          switchExercise(nextId, get, set)
         }
       },
-    };
-  });
+    }
+  })
 }
 
 export type RoutineSessionActions = Pick<
@@ -453,4 +455,4 @@ export type RoutineSessionActions = Pick<
   | "sendNote"
   | "setNoteDraft"
   | "startWorkout"
->;
+>

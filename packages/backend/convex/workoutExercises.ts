@@ -1,19 +1,25 @@
 import { ConvexError, v } from "convex/values"
 
-import {  mutation } from "./_generated/server"
+import { mutation } from "./_generated/server"
 import { parsePrevious } from "./lib/parsePrevious"
-import {  requireUser } from "./lib/principal"
+import { requireUser } from "./lib/principal"
 import { exerciseLog } from "./validators"
-import type {UserId} from "./lib/principal";
-import type {MutationCtx} from "./_generated/server";
+import type { UserId } from "./lib/principal"
+import type { MutationCtx } from "./_generated/server"
 import type { Doc, Id } from "./_generated/dataModel"
 
 async function getOngoingWorkoutExercise(
   ctx: MutationCtx,
   userId: UserId,
   workoutExerciseId: Id<"workoutExercises">
-): Promise<{ workoutExercise: Doc<"workoutExercises">; workout: Doc<"workouts"> }> {
-  const workoutExercise = await ctx.db.get("workoutExercises", workoutExerciseId)
+): Promise<{
+  workoutExercise: Doc<"workoutExercises">
+  workout: Doc<"workouts">
+}> {
+  const workoutExercise = await ctx.db.get(
+    "workoutExercises",
+    workoutExerciseId
+  )
   if (!workoutExercise) {
     throw new ConvexError({
       code: "NOT_FOUND",
@@ -119,7 +125,9 @@ export const removeSet = mutation({
 
     const log = {
       ...workoutExercise.log,
-      sets: workoutExercise.log.sets.filter((_, index) => index !== args.setIndex),
+      sets: workoutExercise.log.sets.filter(
+        (_, index) => index !== args.setIndex
+      ),
     }
 
     await ctx.db.patch("workoutExercises", args.workoutExerciseId, { log })

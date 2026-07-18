@@ -169,7 +169,7 @@ export function RoutineProvider({
     if (!store) return;
 
     const flushOnHide = () => {
-      store.getState().flushPendingSync();
+      store.getState().flushInFlightSync();
     };
 
     const handleVisibilityChange = () => {
