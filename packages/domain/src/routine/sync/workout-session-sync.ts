@@ -49,14 +49,14 @@ export type WorkoutSessionSyncDeps = {
 export type WorkoutSessionSync = {
   persistLog: (exerciseId: string, debounce: boolean) => void;
   flushLog: (exerciseId: string) => void;
-  flushAllLogs: () => void;
+  flushAllLogs: () => Promise<void>;
   onExerciseSwitch: (
     previousExerciseId: string,
     nextExerciseId: string
   ) => void;
   ensureWorkoutStarted: () => Promise<void>;
   startWorkout: () => Promise<void>;
-  stopWorkout: () => Promise<void>;
+  stopWorkout: () => Promise<boolean>;
   applyPrevious: (exerciseId: string, setIndex: number) => void;
   addSet: (exerciseId: string) => void;
   removeSet: (exerciseId: string, setIndex: number) => void;
@@ -76,7 +76,31 @@ export function createWorkoutSessionSync(
   } = deps;
 
   const debounceTimers = new Map<string, ReturnType<typeof setTimeout>>();
+  const inFlightWrites = new Set<Promise<boolean>>();
   let startWorkoutPromise: Promise<void> | null = null;
+
+  const trackInFlight = <T>(write: Promise<T>): Promise<T> => {
+    const settled = write.then(
+      () => true,
+      () => false
+    );
+    inFlightWrites.add(settled);
+    void settled.then(() => {
+      inFlightWrites.delete(settled);
+    });
+    return write;
+  };
+
+  const drainInFlightWrites = async (): Promise<boolean> => {
+    let allSucceeded = true;
+    while (inFlightWrites.size > 0) {
+      const results = await Promise.all([...inFlightWrites]);
+      if (results.includes(false)) {
+        allSucceeded = false;
+      }
+    }
+    return allSucceeded;
+  };
 
   const flushLog = (exerciseId: string) => {
     const existing = debounceTimers.get(exerciseId);
@@ -101,8 +125,7 @@ export function createWorkoutSessionSync(
 
     setState({ syncState: "saving" });
 
-    void sync
-      .updateLog({ workoutExerciseId, log })
+    void trackInFlight(sync.updateLog({ workoutExerciseId, log }))
       .then(() => {
         setState({ syncState: "saved" });
       })
@@ -127,10 +150,15 @@ export function createWorkoutSessionSync(
     );
   };
 
-  const flushAllLogs = () => {
+  const flushAndDrain = (): Promise<boolean> => {
     for (const exerciseId of [...debounceTimers.keys()]) {
       flushLog(exerciseId);
     }
+    return drainInFlightWrites();
+  };
+
+  const flushAllLogs = async (): Promise<void> => {
+    await flushAndDrain();
   };
 
   const persistLog = (exerciseId: string, debounce: boolean) => {
@@ -146,14 +174,14 @@ export function createWorkoutSessionSync(
     const sync = getMutations();
 
     if (sync && state.workoutId && state.workoutStatus === "ongoing") {
-      void sync
-        .setActiveExercise({
+      void trackInFlight(
+        sync.setActiveExercise({
           workoutId: state.workoutId,
           exerciseExternalId: exerciseId,
         })
-        .catch(() => {
-          onError?.("Failed to save active exercise");
-        });
+      ).catch(() => {
+        onError?.("Failed to save active exercise");
+      });
     }
   };
 
@@ -228,15 +256,20 @@ export function createWorkoutSessionSync(
 
     stopWorkout: async () => {
       const state = getState();
-      if (!state.workoutId || state.isStoppingWorkout) return;
-      if (state.workoutStatus === "completed") return;
+      if (!state.workoutId || state.isStoppingWorkout) return false;
+      if (state.workoutStatus === "completed") return true;
 
       const sync = getMutations();
-      if (!sync) return;
-
-      flushAllLogs();
+      if (!sync) return false;
 
       setState({ isStoppingWorkout: true });
+
+      const drained = await flushAndDrain();
+      if (!drained) {
+        setState({ isStoppingWorkout: false });
+        return false;
+      }
+
       try {
         const session = await sync.complete({ workoutId: state.workoutId });
         setState({
@@ -244,10 +277,11 @@ export function createWorkoutSessionSync(
           isStoppingWorkout: false,
           syncState: "saved",
         });
+        return true;
       } catch {
         onError?.("Failed to end workout");
         setState({ isStoppingWorkout: false });
-        throw new Error("Failed to end workout");
+        return false;
       }
     },
 
@@ -255,14 +289,14 @@ export function createWorkoutSessionSync(
       const mutation = canMutateExercise(exerciseId);
 
       if (mutation) {
-        void mutation.sync
-          .applyPreviousToSet({
+        void trackInFlight(
+          mutation.sync.applyPreviousToSet({
             workoutExerciseId: mutation.workoutExerciseId,
             setIndex,
           })
-          .catch(() => {
-            onError?.("Failed to apply previous set");
-          });
+        ).catch(() => {
+          onError?.("Failed to apply previous set");
+        });
       } else {
         persistLog(exerciseId, false);
       }
@@ -272,11 +306,11 @@ export function createWorkoutSessionSync(
       const mutation = canMutateExercise(exerciseId);
 
       if (mutation) {
-        void mutation.sync
-          .addSet({ workoutExerciseId: mutation.workoutExerciseId })
-          .catch(() => {
-            onError?.("Failed to add set");
-          });
+        void trackInFlight(
+          mutation.sync.addSet({ workoutExerciseId: mutation.workoutExerciseId })
+        ).catch(() => {
+          onError?.("Failed to add set");
+        });
       }
     },
 
@@ -284,14 +318,14 @@ export function createWorkoutSessionSync(
       const mutation = canMutateExercise(exerciseId);
 
       if (mutation) {
-        void mutation.sync
-          .removeSet({
+        void trackInFlight(
+          mutation.sync.removeSet({
             workoutExerciseId: mutation.workoutExerciseId,
             setIndex,
           })
-          .catch(() => {
-            onError?.("Failed to remove set");
-          });
+        ).catch(() => {
+          onError?.("Failed to remove set");
+        });
       }
     },
   };

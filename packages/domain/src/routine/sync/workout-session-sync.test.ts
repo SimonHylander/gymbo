@@ -1,18 +1,19 @@
 /**
- * Run: cd apps/web && bun run test src/features/routine/sync/workout-session-sync.test.ts
+ * Run: cd packages/domain && bun run test src/routine/sync/workout-session-sync.test.ts
  */
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
+import {
+  LOG_SYNC_DEBOUNCE_MS,
+  
+  createWorkoutSessionSync
+} from "./workout-session-sync";
+import type {WorkoutSessionSyncState} from "./workout-session-sync";
 import type { WorkoutMutations } from "./workout-mutations";
 import type {
   ExerciseLogState,
   WorkoutSessionSnapshot,
 } from "../domain/types";
-import {
-  createWorkoutSessionSync,
-  LOG_SYNC_DEBOUNCE_MS,
-  type WorkoutSessionSyncState,
-} from "./workout-session-sync";
 import type { Id } from "@workspace/backend/convex/_generated/dataModel";
 
 const exerciseLog: ExerciseLogState = {

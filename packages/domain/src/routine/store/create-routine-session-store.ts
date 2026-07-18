@@ -1,6 +1,5 @@
-import { createStore, type StoreApi } from "zustand";
+import {  createStore } from "zustand";
 
-import type { WorkoutMutations } from "../sync/workout-mutations";
 import {
   addSet,
   applyPreviousToSet,
@@ -19,15 +18,23 @@ import {
 } from "../domain/joint-pain-session";
 import { getRestDuration } from "../domain/rest-timer";
 import {
+  
   adjustRestTimer as adjustRestTimerState,
-  resolveRestTimerAfterSetToggle,
-  type RestTimerState,
+  resolveRestTimerAfterSetToggle
 } from "../domain/rest-timer-session";
 import {
   getExerciseIndex,
   getNextIncompleteId,
   getSwitchDirection,
 } from "../domain/session-selectors";
+import {
+  
+  
+  createWorkoutSessionSync
+} from "../sync/workout-session-sync";
+import type {SyncState, WorkoutSessionSync} from "../sync/workout-session-sync";
+import type {RestTimerState} from "../domain/rest-timer-session";
+import type {StoreApi} from "zustand";
 import type {
   ExerciseLogState,
   Routine,
@@ -36,11 +43,7 @@ import type {
   WorkoutSessionSnapshot,
   WorkoutStatus,
 } from "../domain/types";
-import {
-  createWorkoutSessionSync,
-  type SyncState,
-  type WorkoutSessionSync,
-} from "../sync/workout-session-sync";
+import type { WorkoutMutations } from "../sync/workout-mutations";
 import type { Id } from "@workspace/backend/convex/_generated/dataModel";
 
 export type { SyncState };
@@ -56,7 +59,7 @@ export type RoutineSessionStore = {
   exerciseLogs: Record<string, ExerciseLogState>;
   activeExerciseId: string;
   switchDirection: -1 | 0 | 1;
-  notes: UserNote[];
+  notes: Array<UserNote>;
   noteDraft: string;
   workoutId: Id<"workouts"> | null;
   workoutExerciseIds: Record<string, Id<"workoutExercises">>;
@@ -89,7 +92,7 @@ export type RoutineSessionStore = {
   sendNote: () => void;
   setNoteDraft: (text: string) => void;
   startWorkout: () => Promise<void>;
-  stopWorkout: () => Promise<void>;
+  stopWorkout: () => Promise<boolean>;
   openJointPainCheckIn: () => void;
   openJointPainCheckInForExercise: (exerciseId: string) => void;
   closeJointPainCheckIn: () => void;
@@ -401,15 +404,16 @@ export function createRoutineSessionStore(
       flushPendingSync: () => {
         const state = get();
         if (state.workoutStatus !== "ongoing") return;
-        sessionSync.flushAllLogs();
+        void sessionSync.flushAllLogs();
       },
 
       stopWorkout: async () => {
         set({ restTimer: null });
         try {
-          await sessionSync.stopWorkout();
+          return await sessionSync.stopWorkout();
         } catch {
-          // Error surfaced via onSyncError in the port.
+          // The failure message is surfaced via onSyncError; this reports the outcome.
+          return false;
         }
       },
 

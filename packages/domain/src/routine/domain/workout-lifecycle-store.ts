@@ -1,5 +1,4 @@
-import type { Routine } from "./types";
-import type { ExerciseLogState, WorkoutStatus } from "./types";
+import type { ExerciseLogState, Routine, WorkoutStatus  } from "./types";
 
 /** Subset of routine session store used by workout lifecycle. */
 export type WorkoutLifecycleStorePort = {
@@ -7,7 +6,7 @@ export type WorkoutLifecycleStorePort = {
   workoutStatus: WorkoutStatus;
   exerciseLogs: Record<string, ExerciseLogState>;
   startWorkout: () => Promise<void>;
-  stopWorkout: () => Promise<void>;
+  stopWorkout: () => Promise<boolean>;
   openJointPainCheckIn: () => void;
   closeJointPainCheckIn: () => void;
 };
