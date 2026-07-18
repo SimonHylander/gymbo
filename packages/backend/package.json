@@ -3,6 +3,13 @@
   "version": "0.0.1",
   "type": "module",
   "private": true,
+  "exports": {
+    "./convex/_generated/api": "./convex/_generated/api.js",
+    "./convex/_generated/dataModel": {
+      "types": "./convex/_generated/dataModel.d.ts"
+    },
+    "./convex/validators": "./convex/validators.ts"
+  },
   "scripts": {
     "dev": "convex dev --run init",
     "dev:convex": "convex dev",
@@ -19,7 +26,9 @@
   "devDependencies": {
     "@edge-runtime/vm": "^5.0.0",
     "@types/node": "^26.1.0",
+    "@workspace/config": "workspace:*",
     "convex-test": "^0.0.54",
+    "eslint": "^9.39.2",
     "typescript": "^5.9.3",
     "vitest": "^3.2.4"
   }
