@@ -1,6 +1,6 @@
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 
-import { getActiveExercise } from "@/features/routine/domain/session-selectors";
+import { getActiveExercise } from "@workspace/domain/routine/domain/session-selectors";
 import { ExerciseCard, exerciseCardHeight } from "@/features/routine/components/exercise-card/exercise-card";
 import { RoutineExerciseList } from "@/features/routine/components/routine-exercise-list";
 import { useRoutineSession } from "@/features/routine/store/routine-session-context";

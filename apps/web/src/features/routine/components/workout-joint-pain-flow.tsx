@@ -1,12 +1,12 @@
 import { useQuery } from "convex/react";
 import { useMemo } from "react";
 
-import { api } from "../../../../convex/_generated/api";
-import type { Id } from "../../../../convex/_generated/dataModel";
-import type { WorkoutMutations } from "@/features/routine/adapters/sync-workout";
+import { api } from "@workspace/backend/convex/_generated/api";
+import type { Id } from "@workspace/backend/convex/_generated/dataModel";
+import type { WorkoutMutations } from "@workspace/domain/routine/sync/workout-mutations";
 import { JointPainCheckInDialog } from "@/features/routine/components/joint-pain-check-in-dialog";
-import type { JointPainLevel } from "@/features/routine/domain/joint-pain";
-import type { Exercise } from "@/features/routine/domain/types";
+import type { JointPainLevel } from "@workspace/domain/routine/domain/joint-pain";
+import type { Exercise } from "@workspace/domain/routine/domain/types";
 import { useJointPainSession } from "@/features/routine/store/use-joint-pain-session";
 
 type WorkoutJointPainFlowProps = {

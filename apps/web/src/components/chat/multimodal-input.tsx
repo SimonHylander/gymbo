@@ -4,6 +4,7 @@ import type { UseChatHelpers } from "@ai-sdk/react";
 import { useNavigate } from "@tanstack/react-router";
 import type { UIMessage } from "ai";
 import equal from "fast-deep-equal";
+
 import {
   ArrowUpIcon,
   BrainIcon,
@@ -11,6 +12,7 @@ import {
   LockIcon,
   WrenchIcon,
 } from "lucide-react";
+
 import { useTheme } from "next-themes";
 import {
   type ChangeEvent,
@@ -22,9 +24,11 @@ import {
   useRef,
   useState,
 } from "react";
+
 import { toast } from "sonner";
 import useSWR from "swr";
 import { useLocalStorage, useWindowSize } from "usehooks-ts";
+
 import {
   ModelSelector,
   ModelSelectorContent,
@@ -36,12 +40,14 @@ import {
   ModelSelectorName,
   ModelSelectorTrigger,
 } from "@/components/ai-elements/model-selector";
+
 import {
   type ChatModel,
   chatModels,
   DEFAULT_CHAT_MODEL,
   type ModelCapabilities,
 } from "@/lib/ai/models";
+
 import { API_BASE } from "@/lib/api-base";
 import type { Attachment, ChatMessage } from "@/lib/types";
 import { cn } from "@/lib/utils";
@@ -55,11 +61,13 @@ import {
 import { Button } from "../ui/button";
 import { PaperclipIcon, StopIcon } from "./icons";
 import { PreviewAttachment } from "./preview-attachment";
+
 import {
   type SlashCommand,
   SlashCommandMenu,
   slashCommands,
 } from "./slash-commands";
+
 import { SuggestedActions } from "./suggested-actions";
 import type { VisibilityType } from "./visibility-selector";
 

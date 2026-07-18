@@ -8,7 +8,7 @@ import {
   SidebarProvider,
 } from "@/components/ui/sidebar"
 import { ActiveChatProvider } from "@/hooks/use-active-chat"
-import { MOCK_USER } from "@/lib/mock-auth"
+import { useSessionUser } from "@/lib/session-user"
 
 export const Route = createFileRoute("/_chat")({
   component: ChatLayout,
@@ -26,6 +26,7 @@ function getDefaultSidebarOpen() {
 }
 
 function ChatLayout() {
+  const user = useSessionUser()
   return (
     <>
       <script
@@ -34,7 +35,7 @@ function ChatLayout() {
       />
       <DataStreamProvider>
         <SidebarProvider defaultOpen={getDefaultSidebarOpen()}>
-          <AppSidebar user={MOCK_USER} />
+          <AppSidebar user={user} />
           <SidebarInset>
             <Toaster
               position="top-center"

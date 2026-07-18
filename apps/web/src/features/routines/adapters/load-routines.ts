@@ -1,6 +1,6 @@
 import type { QueryClient } from "@tanstack/react-query";
 
-import type { RoutinesListData } from "@/features/routines/domain/types";
+import type { RoutinesListData } from "@workspace/domain/routines/domain/types";
 import { routinesQueries } from "@/features/routines/adapters/query-keys";
 
 export async function loadRoutines(

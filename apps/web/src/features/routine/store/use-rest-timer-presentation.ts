@@ -4,8 +4,8 @@ import {
   selectRestTimerPresentation,
   type RestTimerPresentation,
   type RestTimerPresentationOptions,
-} from "@/features/routine/domain/rest-timer-presentation";
-import { getActiveExercise } from "@/features/routine/domain/session-selectors";
+} from "@workspace/domain/routine/domain/rest-timer-presentation";
+import { getActiveExercise } from "@workspace/domain/routine/domain/session-selectors";
 import { useRoutineSession } from "@/features/routine/store/routine-session-context";
 
 type UseRestTimerPresentationOptions = RestTimerPresentationOptions & {

@@ -1,0 +1,23 @@
+{
+  "name": "@workspace/native-ui",
+  "version": "0.0.1",
+  "type": "module",
+  "private": true,
+  "exports": {
+    "./*": "./src/*.tsx"
+  },
+  "scripts": {
+    "typecheck": "tsc --noEmit"
+  },
+  "peerDependencies": {
+    "react": "*",
+    "react-native": "*"
+  },
+  "devDependencies": {
+    "@types/react": "~19.2.2",
+    "nativewind": "^4.2.1",
+    "react": "19.2.3",
+    "react-native": "0.86.0",
+    "typescript": "^5.9.3"
+  }
+}

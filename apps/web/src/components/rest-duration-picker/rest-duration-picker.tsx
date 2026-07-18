@@ -14,7 +14,7 @@ import {
   REST_DURATION_OPTION_SECONDS,
   formatRestDurationPickerLabel,
   nearestRestDurationOption,
-} from "@/lib/rest-duration-options";
+} from "@workspace/domain/lib/rest-duration-options";
 import { cn } from "@/lib/utils";
 
 const DEFAULT_PREVIEW_SECONDS = 120;

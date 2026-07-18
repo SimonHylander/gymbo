@@ -12,7 +12,7 @@ import {
 import {
   JOINT_PAIN_OPTIONS,
   type JointPainLevel,
-} from "@/features/routine/domain/joint-pain";
+} from "@workspace/domain/routine/domain/joint-pain";
 import { cn } from "@/lib/utils";
 
 type JointPainCheckInDialogProps = {

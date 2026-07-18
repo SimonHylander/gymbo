@@ -1,8 +1,8 @@
 import type { ReactNode } from "react";
 import { useEffect } from "react";
 
-import { REST_TIMER_SCROLL_INSET_CLASS } from "@/features/routine/domain/rest-timer-presentation";
-import { getAllCompleted } from "@/features/routine/domain/session-selectors";
+import { REST_TIMER_SCROLL_INSET_CLASS } from "@workspace/domain/routine/domain/rest-timer-presentation";
+import { getAllCompleted } from "@workspace/domain/routine/domain/session-selectors";
 import {
   useRoutineMeta,
   useRoutineSession,

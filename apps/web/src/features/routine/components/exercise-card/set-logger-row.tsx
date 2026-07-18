@@ -1,5 +1,5 @@
-import { parsePrevious } from "@/features/routine/domain/exercise-log";
-import type { SetEntry } from "@/features/routine/domain/types";
+import { parsePrevious } from "@workspace/domain/routine/domain/exercise-log";
+import type { SetEntry } from "@workspace/domain/routine/domain/types";
 import { CheckCircle2Icon, Trash2Icon } from "lucide-react";
 import { useState } from "react";
 

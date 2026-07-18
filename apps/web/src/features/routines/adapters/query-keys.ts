@@ -1,6 +1,6 @@
 import { convexQuery } from "@convex-dev/react-query";
 
-import { api } from "../../../../convex/_generated/api";
+import { api } from "@workspace/backend/convex/_generated/api";
 
 export const routinesQueries = {
   list: () => convexQuery(api.programs.listWithRoutines, {}),

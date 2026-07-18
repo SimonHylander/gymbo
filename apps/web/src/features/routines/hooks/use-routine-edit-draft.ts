@@ -3,10 +3,10 @@ import { useBlocker } from "@tanstack/react-router";
 import { useMutation as useConvexMutation } from "convex/react";
 import { useCallback, useEffect, useMemo, useState } from "react";
 
-import { api } from "../../../../convex/_generated/api";
+import { api } from "@workspace/backend/convex/_generated/api";
 import { routinesQueries } from "@/features/routines/adapters/query-keys";
 import { saveRoutineTemplate } from "@/features/routines/adapters/save-routine-template";
-import { detailToDraft } from "@/features/routines/domain/map-routine-template";
+import { detailToDraft } from "@workspace/domain/routines/domain/map-routine-template";
 import {
   addSetToExercise,
   createExerciseDraftFromCatalog,
@@ -14,20 +14,20 @@ import {
   removeSetFromExercise,
   updateExerciseSetTemplate,
   validateDraft,
-} from "@/features/routines/domain/routine-template";
+} from "@workspace/domain/routines/domain/routine-template";
 import type {
   ExerciseCatalogItem,
   RoutineDetail,
   RoutineTemplateDraft,
   SetTemplate,
-} from "@/features/routines/domain/types";
+} from "@workspace/domain/routines/domain/types";
 import {
   addExerciseToDraft,
   removeExerciseFromDraft,
   updateExerciseInDraft,
-} from "@/features/routines/domain/map-routine-template";
+} from "@workspace/domain/routines/domain/map-routine-template";
 import { toast } from "@/components/chat/toast";
-import type { RepTargetFields } from "@/lib/rep-target";
+import type { RepTargetFields } from "@workspace/domain/lib/rep-target";
 
 type UseRoutineEditDraftOptions = {
   detail: RoutineDetail | null;

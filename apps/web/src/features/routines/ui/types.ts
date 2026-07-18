@@ -5,8 +5,8 @@ import type {
   RoutineListProgram,
   RoutineSummary,
   SetTemplate,
-} from "@/features/routines/domain/types";
-import type { RepTargetFields } from "@/lib/rep-target";
+} from "@workspace/domain/routines/domain/types";
+import type { RepTargetFields } from "@workspace/domain/lib/rep-target";
 
 export type RoutineListCardsViewProps = {
   programs: RoutineListProgram[];

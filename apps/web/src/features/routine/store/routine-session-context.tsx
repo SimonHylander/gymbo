@@ -13,27 +13,27 @@ import {
 import { useStore, type StoreApi } from "zustand";
 import { useShallow } from "zustand/react/shallow";
 
-import { api } from "../../../../convex/_generated/api";
+import { api } from "@workspace/backend/convex/_generated/api";
 import {
   createWorkoutSync,
   type WorkoutMutations,
-} from "@/features/routine/adapters/sync-workout";
+} from "@workspace/domain/routine/sync/workout-mutations";
 import { WorkoutJointPainFlow } from "@/features/routine/components/workout-joint-pain-flow";
 import type {
   Routine,
   WorkoutSessionSnapshot,
-} from "@/features/routine/domain/types";
+} from "@workspace/domain/routine/domain/types";
 import {
   createWorkoutLifecycle,
   type NextRoutine,
   type WorkoutLifecycleContextValue,
-} from "@/features/routine/domain/workout-lifecycle";
+} from "@workspace/domain/routine/domain/workout-lifecycle";
 import {
   createRoutineSessionStore,
   type RoutineSessionActions,
   type RoutineSessionStore,
   type WorkoutSyncRef,
-} from "@/features/routine/store/create-routine-session-store";
+} from "@workspace/domain/routine/store/create-routine-session-store";
 import { toast } from "@/components/chat/toast";
 
 const RoutineStoreContext =

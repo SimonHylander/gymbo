@@ -1,6 +1,6 @@
 import { CheckIcon } from "lucide-react";
 
-import { getCompletedIds } from "@/features/routine/domain/session-selectors";
+import { getCompletedIds } from "@workspace/domain/routine/domain/session-selectors";
 import {
   useRoutineActions,
   useRoutineSession,
@@ -17,7 +17,7 @@ import {
   SidebarRail,
 } from "@/components/ui/sidebar";
 import { cn } from "@/lib/utils";
-import { formatRepTargetLabel } from "@/lib/rep-target";
+import { formatRepTargetLabel } from "@workspace/domain/lib/rep-target";
 
 export function RoutineSidebar() {
   const routine = useRoutineSession((state) => state.routine);

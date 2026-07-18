@@ -1,0 +1,26 @@
+{
+  "name": "@workspace/backend",
+  "version": "0.0.1",
+  "type": "module",
+  "private": true,
+  "scripts": {
+    "dev": "convex dev --run init",
+    "dev:convex": "convex dev",
+    "deploy": "convex deploy",
+    "lint": "eslint",
+    "format": "prettier --write \"**/*.ts\"",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "test:watch": "vitest"
+  },
+  "dependencies": {
+    "convex": "^1.39.1"
+  },
+  "devDependencies": {
+    "@edge-runtime/vm": "^5.0.0",
+    "@types/node": "^26.1.0",
+    "convex-test": "^0.0.54",
+    "typescript": "^5.9.3",
+    "vitest": "^3.2.4"
+  }
+}

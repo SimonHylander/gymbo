@@ -2,12 +2,12 @@ import { useReducedMotion } from "framer-motion";
 import { CheckIcon, PlusIcon, TimerIcon } from "lucide-react";
 import { useEffect, useRef } from "react";
 
-import { isExerciseComplete } from "@/features/routine/domain/exercise-log";
+import { isExerciseComplete } from "@workspace/domain/routine/domain/exercise-log";
 import {
   getActiveExercise,
   getAllCompleted,
   getExerciseIndex,
-} from "@/features/routine/domain/session-selectors";
+} from "@workspace/domain/routine/domain/session-selectors";
 import { WorkoutCompleteCta } from "@/features/routine/components/workout-complete-cta";
 import { useExerciseLogging } from "@/features/routine/store/routine-session-context";
 import { useRestTimerPresentation } from "@/features/routine/store/use-rest-timer-presentation";
@@ -16,7 +16,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { cn } from "@/lib/utils";
-import { formatRepTargetLabel } from "@/lib/rep-target";
+import { formatRepTargetLabel } from "@workspace/domain/lib/rep-target";
 
 export const exerciseCardHeight = "min(420px, calc(100dvh - 16rem))";
 

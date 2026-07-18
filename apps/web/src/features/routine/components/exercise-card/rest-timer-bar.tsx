@@ -4,7 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import {
   formatRestCountdown,
   getRestProgress,
-} from "@/features/routine/domain/rest-timer";
+} from "@workspace/domain/routine/domain/rest-timer";
 import {
   useRestTimerControls,
 } from "@/features/routine/store/routine-session-context";

@@ -1,7 +1,7 @@
 import { FlameIcon } from "lucide-react";
 
 import { WorkoutCompleteCta } from "@/features/routine/components/workout-complete-cta";
-import { getAllCompleted } from "@/features/routine/domain/session-selectors";
+import { getAllCompleted } from "@workspace/domain/routine/domain/session-selectors";
 import { useRoutineSession } from "@/features/routine/store/routine-session-context";
 
 export function RoutineSummary() {

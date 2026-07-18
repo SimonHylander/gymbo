@@ -5,8 +5,8 @@ import { LeaveWorkoutDialog } from "@/features/routine/components/leave-workout-
 import {
   formatWorkoutElapsedMinutes,
   getWorkoutElapsedMs,
-} from "@/features/routine/domain/workout-timer";
-import { getWorkoutStats } from "@/features/routine/domain/session-selectors";
+} from "@workspace/domain/routine/domain/workout-timer";
+import { getAllCompleted, getWorkoutStats } from "@workspace/domain/routine/domain/session-selectors";
 import {
   useRoutineSession,
   useWorkoutLifecycle,
@@ -95,7 +95,7 @@ function WorkoutElapsedTime() {
 }
 
 export function RoutineHeader() {
-  const name = useRoutineSession((state) => state.routine.name);
+  const routine = useRoutineSession((state) => state.routine);
   const exerciseLogs = useRoutineSession((state) => state.exerciseLogs);
   const {
     workoutStatus,
@@ -109,6 +109,7 @@ export function RoutineHeader() {
   const [leaveDialogOpen, setLeaveDialogOpen] = useState(false);
 
   const { completedSets, totalVolumeKg } = getWorkoutStats(exerciseLogs);
+  const allExercisesCompleted = getAllCompleted(routine, exerciseLogs);
 
   const statusLabel =
     workoutStatus === "completed"
@@ -153,7 +154,7 @@ export function RoutineHeader() {
               <ArrowLeftIcon className="size-4" />
             </Button>
             <div className="min-w-0 flex-1">
-              <h2 className="truncate font-semibold text-sm">{name}</h2>
+              <h2 className="truncate font-semibold text-sm">{routine.name}</h2>
               <div className="mt-0.5 flex flex-wrap items-center gap-2">
                 <p className="text-xs text-foreground/70">{statusLabel}</p>
                 {workoutStatus === "ongoing" && workoutStartedAt !== null && (
@@ -177,7 +178,7 @@ export function RoutineHeader() {
                 {isStartingWorkout ? "Starting…" : "Start workout"}
               </Button>
             )}
-            {workoutStatus === "ongoing" && (
+            {workoutStatus === "ongoing" && !allExercisesCompleted && (
               <Button
                 variant="outline"
                 size="sm"

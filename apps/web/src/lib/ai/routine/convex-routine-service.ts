@@ -1,7 +1,7 @@
 import { ConvexHttpClient } from "convex/browser"
 import { Effect, Layer, Schema } from "effect"
 
-import { api } from "../../../../convex/_generated/api"
+import { api } from "@workspace/backend/convex/_generated/api"
 import {
   RoutineInfrastructureError,
   RoutineToolExercise,

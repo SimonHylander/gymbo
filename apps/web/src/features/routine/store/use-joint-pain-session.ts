@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
-import type { WorkoutMutations } from "@/features/routine/adapters/sync-workout";
-import type { JointPainLevel } from "@/features/routine/domain/joint-pain";
+import type { WorkoutMutations } from "@workspace/domain/routine/sync/workout-mutations";
+import type { JointPainLevel } from "@workspace/domain/routine/domain/joint-pain";
 import {
   createJointPainSessionState,
   prefillSavedLevels,
@@ -10,9 +10,9 @@ import {
   type ExistingJointPainFeedback,
   type JointPainSessionConfig,
   type JointPainSessionEvent,
-} from "@/features/routine/domain/joint-pain-session";
-import type { Exercise } from "@/features/routine/domain/types";
-import type { Id } from "../../../../convex/_generated/dataModel";
+} from "@workspace/domain/routine/domain/joint-pain-session";
+import type { Exercise } from "@workspace/domain/routine/domain/types";
+import type { Id } from "@workspace/backend/convex/_generated/dataModel";
 import { toast } from "@/components/chat/toast";
 
 type UseJointPainSessionOptions = {

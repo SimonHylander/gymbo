@@ -17,7 +17,7 @@ import {
   parseRepInput,
   type RepTargetFields,
   type RepTargetMode,
-} from "@/lib/rep-target";
+} from "@workspace/domain/lib/rep-target";
 import { cn } from "@/lib/utils";
 
 export type RepPickerProps = RepTargetFields & {

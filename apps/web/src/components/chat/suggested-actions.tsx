@@ -4,9 +4,9 @@ import type { UseChatHelpers } from "@ai-sdk/react";
 import { useNavigate } from "@tanstack/react-router";
 import { motion } from "framer-motion";
 import { memo } from "react";
-import { suggestions } from "@/lib/constants";
 import type { ChatMessage } from "@/lib/types";
 import { Suggestion } from "../ai-elements/suggestion";
+import { chatStarterActions } from "./starter-actions";
 import type { VisibilityType } from "./visibility-selector";
 
 type SuggestedActionsProps = {
@@ -17,7 +17,6 @@ type SuggestedActionsProps = {
 
 function PureSuggestedActions({ chatId, sendMessage }: SuggestedActionsProps) {
   const navigate = useNavigate();
-  const suggestedActions = suggestions;
 
   return (
     <div
@@ -29,13 +28,13 @@ function PureSuggestedActions({ chatId, sendMessage }: SuggestedActionsProps) {
         msOverflowStyle: "none",
       }}
     >
-      {suggestedActions.map((suggestedAction, index) => (
+      {chatStarterActions.map((action, index) => (
         <motion.div
           animate={{ opacity: 1, y: 0 }}
           className="min-w-[200px] shrink-0 sm:min-w-0 sm:shrink"
           exit={{ opacity: 0, y: 16 }}
           initial={{ opacity: 0, y: 16 }}
-          key={suggestedAction}
+          key={action.label}
           transition={{
             delay: 0.06 * index,
             duration: 0.4,
@@ -44,16 +43,20 @@ function PureSuggestedActions({ chatId, sendMessage }: SuggestedActionsProps) {
         >
           <Suggestion
             className="h-auto w-full whitespace-nowrap rounded-xl border border-border/50 bg-card/30 px-4 py-3 text-left text-[12px] leading-relaxed text-muted-foreground transition-all duration-200 sm:whitespace-normal sm:p-4 sm:text-[13px] hover:-translate-y-0.5 hover:bg-card/60 hover:text-foreground hover:shadow-[var(--shadow-card)]"
-            onClick={(suggestion) => {
+            onClick={() => {
+              if (action.kind === "navigate") {
+                void navigate({ to: action.to });
+                return;
+              }
               void navigate({ params: { id: chatId }, to: "/chat/$id" });
               sendMessage({
                 role: "user",
-                parts: [{ type: "text", text: suggestion }],
+                parts: [{ type: "text", text: action.message }],
               });
             }}
-            suggestion={suggestedAction}
+            suggestion={action.label}
           >
-            {suggestedAction}
+            {action.label}
           </Suggestion>
         </motion.div>
       ))}

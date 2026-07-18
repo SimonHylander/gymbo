@@ -10,7 +10,7 @@ import {
 import {
   routineDetailStats,
   routineExerciseNamePreview,
-} from "@/features/routines/domain/routine-detail-summary";
+} from "@workspace/domain/routines/domain/routine-detail-summary";
 import type { RoutineDetailViewProps } from "@/features/routines/ui/types";
 
 export function RoutineDetailView({
